@@ -1,0 +1,5 @@
+# Exclude virtual environment
+treehacks
+# Exclude ref text
+/ref
+.gitignore
