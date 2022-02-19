@@ -3,8 +3,10 @@ from flask import Flask, request
 from typing import Dict
 from flask_restful import Resource, Api
 from the_glue import CORE_EXECUTION
+from flask_cors import CORS
 app = Flask(__name__)
 api = Api(app)
+cors = CORS(app)
 
 
 class Article(Resource):
@@ -30,4 +32,4 @@ class Article(Resource):
 
 api.add_resource(Article, "/get-article-data")
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
