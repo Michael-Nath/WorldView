@@ -1,12 +1,14 @@
-# @Author: shounak
+# @Author: shounak, michael
 # @Date:   2022-02-19T00:51:04-08:00
-# @Email:  shounak@stanford.edu
+# @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
 # @Last modified time: 2022-02-19T04:31:23-08:00
 
 
 import os
+import re
+from heapq import nlargest
 import nltk
 from nltk.corpus import stopwords
 from util import download_nltk_dependecy
@@ -68,11 +70,41 @@ def get_top_phrases(word_list: list, LIMIT: int = 100, THRESH: int = 1) -> dict:
     finder = nltk.collocations.TrigramCollocationFinder.from_words(word_list)
     return dict([e for e in finder.ngram_fd.most_common(LIMIT) if e[1] > THRESH])
 
+def summarize_content(content: str) -> list:
+    # get sentences
+    formatted_content = re.sub('[^a-zA-Z]', ' ', content )
+    sentences = get_sentences(content)
+    formatted_content = re.sub(r'\s+', ' ', formatted_content)
+    stop_words = nltk.corpus.stopwords.words('english')
+    word_frequencies = {}
+    for word in nltk.word_tokenize(formatted_content):
+        if word not in stop_words:
+            if word not in word_frequencies.keys():
+                word_frequencies[word] = 1
+            else:
+                word_frequencies[word] += 1
+    maximum_frequncy = max(word_frequencies.values())
+    for word in word_frequencies.keys():
+        word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
+    sentence_scores = {}
+    for sent in sentences:
+        for word in nltk.word_tokenize(sent.lower()):
+            if word in word_frequencies.keys():
+                if len(sent.split(' ')) < 30:
+                    if sent not in sentence_scores.keys():
+                        sentence_scores[sent] = word_frequencies[word]
+                    else:
+                        sentence_scores[sent] += word_frequencies[word]
+    summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
+    return "\n".join(summary_sentences)
+    
+
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
     _headline = URL_META_DATA['headline']
 
     content_sentiment = get_sentiment(_content)
+    content_summary = summarize_content(_content)
     headline_sentiment = get_sentences(_headline)
     all_clean_words = get_clean_words(_content, uniq = False)
     kw_freq = kw_frequency(all_clean_words)
@@ -82,6 +114,7 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     pos_tags = get_pos_tags(uniq_clean_words)
 
     JSON_OBJECT = {'content_sentiment': content_sentiment,
+                   'content_summary': content_summary,
                    'headline_sentiment': headline_sentiment,
                    'clean_words': all_clean_words,
                    'keyword_frequency': kw_freq,

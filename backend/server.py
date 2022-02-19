@@ -12,9 +12,6 @@ class Article(Resource):
         args = request.args
         url = args.get("url")
         attributes: Dict = CORE_EXECUTION(url)
-        print(attributes.keys())
-        print(attributes["top_words"])
-        print(attributes["top_phrases"])
         payload = {
             "status": 200,
             "error": False,
@@ -22,7 +19,7 @@ class Article(Resource):
             "headline_sentiment": attributes["headline_sentiment"],
             "content_sentiment": attributes["content_sentiment"],
             "top_words": attributes["top_words"],
-            # "top_phrases": attributes["top_phrases"]
+            "content_summary": attributes["content_summary"]
         }
         return payload
         # here the scraping function should be called with the url as input
@@ -30,4 +27,6 @@ class Article(Resource):
 
 api.add_resource(Article, "/get-article-data")
 if __name__ == '__main__':
-    app.run(debug=True)
+    # host = "0.0.0.0"
+    host = None
+    app.run(debug=True, host=host)
