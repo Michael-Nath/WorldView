@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: extracontent.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T04:02:56-08:00
+# @Last modified time: 2022-02-19T04:16:44-08:00
 
 # NOTE: Do not run this file. It's purpose is to track helpful snippets.
 
@@ -92,6 +92,10 @@
 # concordances = [e.line for e in content_obj.concordance_list("putin", lines=5)]
 # list(nltk.corpus.state_union.words())
 # type(concordances)
+
+# from trafilatura import fetch_url, extract
+# def get_content(URL):
+#     return extract(fetch_url(URL))
 }
 
 """EOF"""
