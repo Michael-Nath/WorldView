@@ -6,7 +6,8 @@
 # @Last modified time: 2022-02-19T04:33:31-08:00
 
 from typing import Final, Union
-from backend import scraping, nlp
+# from backend import scraping, nlp
+import scraping, nlp
 
 def CORE_EXECUTION(NODE_URL: str) -> dict:
     # Get the meta data

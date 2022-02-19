@@ -9,7 +9,7 @@
 import os
 import nltk
 from nltk.corpus import stopwords
-from backend.util import download_nltk_dependecy
+from util import download_nltk_dependecy
 _DEPS = ['stopwords', 'punkt', 'averaged_perceptron_tagger', 'vader_lexicon', 'wordnet']
 for d in _DEPS:
     download_nltk_dependecy(d)
