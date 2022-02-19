@@ -3,50 +3,20 @@
 # @Email:  shounak@stanford.edu
 # @Filename: scraping_defs.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T00:10:29-08:00
+# @Last modified time: 2022-02-19T00:50:07-08:00
 # @Description: Scrapes the headers and text body from all the files.
 #               Most basic, source information needed. No abstraction.
 
-import ast
-import collections
-import math
 import os
-# For Graph Traversal
-import random
-# Regex Library
-import re
-import time
-import webbrowser
-from collections import Counter
 from typing import Final
 # For visualizations
-from itertools import chain
-from math import cos, radians, sin
-from pathlib import Path
-import matplotlib
-# import tkinter
-# tkinter._test()
-# import nest_asyncio
-# nest_asyncio.apply()
-import matplotlib.pyplot as plt
-import networkx as nx
-import numpy as np
-import pandas as pd
-import requests
-import seaborn as sns
-from bs4 import BeautifulSoup
-from mpl_toolkits.mplot3d import Axes3D
-from PIL import Image
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-# For colormind integration
-from webdriver_manager.chrome import ChromeDriverManager
+import trafilatura
+import nltk
+from nltk.corpus import stopwords
+status = nltk.download('stopwords')
+if not status:
+    raise FileExistsError("FATAL: Can't install stopwords from NLTK. Uknown why.")
+from nltk.tokenize import word_tokenize
 
 _ = """
 ####################################################################################################
@@ -54,49 +24,18 @@ _ = """
 #################################################################################################"""
 
 # Data Processing Hyperparameters
-FULL_SCROLL_NUMBER = 10
-TEST_URL = "https://www.nytimes.com/2022/02/12/us/politics/donald-trump-business-interests.html"
-SCROLL_MAX = 4
-TIMEOUT_THRESH = 10
+TEST_URL = "https://www.reuters.com/world/europe/shelling-breaks-out-east-ukraine-west-moscow-dispute-troop-moves-2022-02-17/"
 
 _ = """
 ####################################################################################################
 ############################################ DEFINTIONS ############################################
 #################################################################################################"""
 
-def check_exists_by_xpath(xpath, driver):
-    try:
-        driver.find_element_by_xpath(xpath)
-    except NoSuchElementException:
-        return False
-    return True
+def word_list(URL):
+    downloaded = trafilatura.fetch_url(URL)
+    content = trafilatura.extract(downloaded)
+    words = set([s.strip() for s in content.split()])
 
-
-def open_tab(driver):
-    driver.execute_script("window.open('');")
-    driver.switch_to_window(driver.window_handles[-1])
-
-
-def close_tab(driver):
-    driver.execute_script("window.close('');")
-    driver.switch_to_window(driver.window_handles[-1])
-
-
-
-_ = """
-####################################################################################################
-############################################# SCRAPING #############################################
-#################################################################################################"""
-
-# Initiate scraping session
-driver = webdriver.Chrome(ChromeDriverManager().install())
-driver.get(TEST_URL)
-time.sleep(5.0)
-
-_ = """
-####################################################################################################
-######################################### DATA PROCESSING ##########################################
-#################################################################################################"""
-
+    return words
 
 # EOF
