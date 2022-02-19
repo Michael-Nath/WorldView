@@ -18,6 +18,7 @@ class Article(Resource):
         payload = {
             "status": 200,
             "error": False,
+            "headline": attributes["headline"],
             "headline_sentiment": attributes["headline_sentiment"],
             "content_sentiment": attributes["content_sentiment"],
             "top_words": attributes["top_words"],
