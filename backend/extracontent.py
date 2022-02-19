@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: extracontent.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T04:16:44-08:00
+# @Last modified time: 2022-02-19T15:04:22-08:00
 
 # NOTE: Do not run this file. It's purpose is to track helpful snippets.
 
@@ -88,6 +88,8 @@
 
 """NLP"""
 {
+# with open('backend/ref/pos_fullform.txt') as f:
+#     POS_MAP = dict([l.replace('\n', '').split(' ', 1) for l in f.readlines()])
 # content_obj = nltk.Text(all_clean_words)
 # concordances = [e.line for e in content_obj.concordance_list("putin", lines=5)]
 # list(nltk.corpus.state_union.words())
