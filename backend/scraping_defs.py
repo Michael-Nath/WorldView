@@ -3,20 +3,14 @@
 # @Email:  shounak@stanford.edu
 # @Filename: scraping_defs.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T00:50:07-08:00
+# @Last modified time: 2022-02-19T01:18:52-08:00
 # @Description: Scrapes the headers and text body from all the files.
 #               Most basic, source information needed. No abstraction.
 
 import os
 from typing import Final
 # For visualizations
-import trafilatura
-import nltk
-from nltk.corpus import stopwords
-status = nltk.download('stopwords')
-if not status:
-    raise FileExistsError("FATAL: Can't install stopwords from NLTK. Uknown why.")
-from nltk.tokenize import word_tokenize
+from trafilatura import fetch_url, extract
 
 _ = """
 ####################################################################################################
@@ -31,11 +25,7 @@ _ = """
 ############################################ DEFINTIONS ############################################
 #################################################################################################"""
 
-def word_list(URL):
-    downloaded = trafilatura.fetch_url(URL)
-    content = trafilatura.extract(downloaded)
-    words = set([s.strip() for s in content.split()])
-
-    return words
+def get_content(URL):
+    return extract(fetch_url(URL))
 
 # EOF
