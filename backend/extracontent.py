@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: extracontent.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T00:46:05-08:00
+# @Last modified time: 2022-02-19T04:02:56-08:00
 
 # NOTE: Do not run this file. It's purpose is to track helpful snippets.
 
@@ -84,6 +84,14 @@
 #             new_group_dst.extend([group] * freq)
 #         G.add_edges_from(combinations(new_group_dst, 2))
 #     return G
+}
+
+"""NLP"""
+{
+# content_obj = nltk.Text(all_clean_words)
+# concordances = [e.line for e in content_obj.concordance_list("putin", lines=5)]
+# list(nltk.corpus.state_union.words())
+# type(concordances)
 }
 
 """EOF"""
