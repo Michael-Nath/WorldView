@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: the_glue.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T15:40:07-08:00
+# @Last modified time: 2022-02-19T15:41:26-08:00
 
 def _set_cwd():
     import os
@@ -32,7 +32,7 @@ def CORE_EXECUTION(NODE_URL: str) -> dict:
     return ATTRIBUTES
 
 """TEST"""
-URL = "https://www.reuters.com/world/europe/shelling-breaks-out-east-ukraine-west-moscow-dispute-troop-moves-2022-02-17/"
+# URL = "https://www.reuters.com/world/europe/shelling-breaks-out-east-ukraine-west-moscow-dispute-troop-moves-2022-02-17/"
 # _result = CORE_EXECUTION(URL)
 # _bad = CORE_EXECUTION("sdfsjdfknns.cas")
 
