@@ -5,6 +5,61 @@ import styled from 'styled-components'
 import { AiFillAppstore, AiFillSetting } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { Loader, Dimmer } from 'semantic-ui-react'
+import ReactFlow from 'react-flow-renderer';
+import ClusterNode from './helpers/clusterNode'
+import MainNode from './helpers/mainNode'
+
+const elements = [
+  {
+    id: '1', type: 'main', data: {
+      label: 'Perspective'
+    },
+    position: { x: 250, y: 5 }
+  },
+  {
+    id: '2', type: 'cluster', data: {
+      sentiment: {
+        pos: 0.7,
+        neg: 0.2,
+        neu: 0.1
+      },
+      numNodes: 5,
+      degree: 3,
+      keywords: ["Test", "hey", "lol"]
+    },
+    position: { x: 250, y: 200 }
+
+  },
+  {
+    id: '3', type: 'cluster', data: {
+      sentiment: {
+        pos: 0.7,
+        neg: 0.2,
+        neu: 0.1
+      },
+      numNodes: 5,
+      degree: 3,
+      keywords: ["Test", "hey", "lol"]
+    },
+    position: { x: 250, y: 100 }
+  },
+  {
+    id: '4', type: 'cluster', data: {
+      sentiment: {
+        pos: 0.7,
+        neg: 0.2,
+        neu: 0.1
+      },
+      numNodes: 5,
+      degree: 3,
+      keywords: ["Test", "hey", "lol"]
+    },
+    position: { x: 250, y: 200 }
+  },
+  { id: 'e1-2', source: '1', target: '2', animated: false },
+  { id: 'e1-3', source: '1', target: '3', animated: false },
+  { id: 'e1-4', source: '1', target: '4', animated: false }
+];
 
 const PopupContainer = styled.div`
   background: #202124;
@@ -62,7 +117,7 @@ const TabItem = styled.div`
 const LeftSidebar = styled.div`
   background: #292A2E;
   height: 100vh;
-  width: 30%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 50px;
@@ -151,6 +206,29 @@ const Sentiment = styled.div`
   width: 100%;
 `
 
+const MainContent = styled.div`
+  flex: 3;
+
+`
+
+const Keywords = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`
+
+const Keyword = styled.div`
+  border-radius: 6px;
+  background: #37383d;
+  padding: 10px;
+  font-size: 14px;
+  color: white;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 const App = () => {
 
   const [loadState, setLoadState] = useState("loading");
@@ -207,7 +285,6 @@ const App = () => {
   if (loadState == "popup") {
     return (
       <PopupContainer>
-
         <CurrentArticleHeader>
           <Headline>
             {currentArticleInfo.headline}
@@ -284,9 +361,20 @@ const App = () => {
               </SentimentDescriptions>
             </Sentiment>
 
+            <Keywords>
+              {Object.keys(currentArticleInfo.top_words).map((word) => {
+                return (
+                  <Keyword>{word}</Keyword>
+                )
+              })}
+            </Keywords>
 
           </Article>
         </LeftSidebar>
+
+        <MainContent>
+          <ReactFlow elements={elements} nodeTypes={{ cluster: ClusterNode, main: MainNode }} />
+        </MainContent>
       </DashboardContainer>
     )
   } else {
