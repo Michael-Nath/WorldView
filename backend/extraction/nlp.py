@@ -110,6 +110,9 @@ def summarize_content(content: str) -> list:
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
     return summary_sentences
 
+
+
+
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
     _headline = URL_META_DATA['headline']
