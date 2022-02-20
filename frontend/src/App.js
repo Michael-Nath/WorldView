@@ -8,58 +8,22 @@ import { Loader, Dimmer } from 'semantic-ui-react'
 import ReactFlow from 'react-flow-renderer';
 import ClusterNode from './helpers/clusterNode'
 import MainNode from './helpers/mainNode'
+import ArticleNode from './helpers/articleNode'
+import { BiHomeAlt } from "react-icons/bi"
 
-const elements = [
-  {
-    id: '1', type: 'main', data: {
-      label: 'Perspective'
-    },
-    position: { x: 250, y: 5 }
-  },
-  {
-    id: '2', type: 'cluster', data: {
-      sentiment: {
-        pos: 0.7,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 250, y: 200 }
 
-  },
-  {
-    id: '3', type: 'cluster', data: {
-      sentiment: {
-        pos: 0.7,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 250, y: 100 }
-  },
-  {
-    id: '4', type: 'cluster', data: {
-      sentiment: {
-        pos: 0.7,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 250, y: 200 }
-  },
-  { id: 'e1-2', source: '1', target: '2', animated: false },
-  { id: 'e1-3', source: '1', target: '3', animated: false },
-  { id: 'e1-4', source: '1', target: '4', animated: false }
-];
+const NavButtons = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+`
+
+const HomeButton = styled.div`
+  opacity: 0.5;
+  color: white;
+  padding: 30px;
+  cursor: pointer;
+`
 
 const PopupContainer = styled.div`
   background: #202124;
@@ -209,6 +173,13 @@ const Sentiment = styled.div`
 const MainContent = styled.div`
   flex: 3;
 
+  .react-flow__node {
+    cursor: pointer !important;
+  }
+
+  .react-flow__handle.connectable {
+    cursor: pointer !important;
+  }
 `
 
 const Keywords = styled.div`
@@ -235,155 +206,169 @@ const App = () => {
   const [selectedTab, setSelectedTab] = useState("first");
   const [currentArticleInfo, setCurrentArticleInfo] = useState(null)
 
-
-  useEffect(() => {
-    let views = chrome.extension.getViews({ type: "popup" });
-
-    // If dashboard
-    if (views.length == 0) {
-      setLoadState("dashboard")
-
-      // Get previous accessed tab (need to fix this...)
-      chrome.tabs.query({
-        active: false
-      }, (tabs) => {
-        let tab = tabs.reduce((previous, current) => {
-          return previous.lastAccessed > current.lastAccessed ? previous : current;
-        });
-
-        chrome.storage.sync.get(tab.url, data => {
-          setCurrentArticleInfo(data[tab.url])
-        })
-
-      });
-    } else {
-
-      // If popup
-      setLoadState("popup")
-
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.storage.sync.get(tabs[0].url, data => {
-          setCurrentArticleInfo(data[tabs[0].url])
-        })
-      })
-
-    }
-
-  }, [])
+  const [dashboardView, setDashboardView] = useState({
+    view: "cluster",
+    data: null
+  })
 
 
-  if (!currentArticleInfo) {
-    return (
-      <LoadingContainer>
-        <Dimmer active>
-          <Loader />
-        </Dimmer>
-      </LoadingContainer>
-    )
-  }
+  const clusters = [
+    {
+      id: '1', type: 'main', data: {
+        label: 'Perspectives'
+      },
+      position: { x: (966 / 2) - 125, y: (766 / 2) - 60 }
+    },
+    {
+      id: '2', type: 'cluster', data: {
+        sentiment: {
+          pos: 0.7,
+          neg: 0.2,
+          neu: 0.1
+        },
+        numNodes: 5,
+        degree: 3,
+        keywords: ["Test", "hey", "lol"]
+      },
+      position: { x: 250, y: 200 }
 
-  if (loadState == "popup") {
-    return (
-      <PopupContainer>
-        <CurrentArticleHeader>
-          <Headline>
-            {currentArticleInfo.headline}
-          </Headline>
+    },
+    {
+      id: '3', type: 'cluster', data: {
+        sentiment: {
+          pos: 0.7,
+          neg: 0.2,
+          neu: 0.1
+        },
+        numNodes: 5,
+        degree: 3,
+        keywords: ["Test", "hey", "lol"]
+      },
+      position: { x: (966 / 2) + 200, y: (766 / 2) - 60 }
+    },
+    {
+      id: '4', type: 'cluster', data: {
+        sentiment: {
+          pos: 1.1,
+          neg: 0.2,
+          neu: 0.1
+        },
+        numNodes: 5,
+        degree: 3,
+        keywords: ["Test", "hey", "lol"]
+      },
+      position: { x: (966 / 2) - 400, y: (766 / 2) - 60 }
+    },
+    { id: 'e1-2', source: '1', target: '2', animated: false },
+    { id: 'e1-3', source: '1', target: '3', animated: false },
+    { id: 'e1-4', source: '1', target: '4', animated: false }
+  ];
+
+  const articles = [
+    {
+      id: '1', type: 'article', data: {
+        headline: "Headline 1",
+        author: "John Doe",
+        summary: ["hello there", "this is great"],
+        cluster_id: "2"
+      },
+      position: { x: 200, y: 200 }
+    },
+    {
+      id: '2', type: 'article', data: {
+        headline: "Headline 2",
+        author: "Jack Kid",
+        summary: ["hello there", "this is great"],
+        cluster_id: "2"
+      },
+      position: { x: 250, y: 250 }
+    },
+    {
+      id: '3', type: 'article', data: {
+        headline: "Headline 3",
+        author: "John Doe",
+        summary: ["hello there", "this is great"],
+        cluster_id: "2"
+      },
+      position: { x: 350, y: 350 }
+    },
+    {
+      id: '4', type: 'article', data: {
+        headline: "Headline 4",
+        author: "John Doe",
+        summary: ["hello there", "this is great"],
+        cluster_id: "2"
+      },
+      position: { x: 100, y: 100 }
+    },
+    { id: 'e1-2', source: '1', target: '2', animated: false },
+    { id: 'e1-3', source: '1', target: '3', animated: false },
+    { id: 'e1-4', source: '1', target: '4', animated: false },
+    { id: 'e2-4', source: '2', target: '4', animated: false },
+    { id: 'e2-3', source: '2', target: '3', animated: false }
+  ];
+
+  return (
+    <DashboardContainer>
+      <LeftSidebar>
+        <Article>
+          <ArticleInfo>
+            <Source>
+              New York Times
+              </Source>
+            <Headline>
+              dsadad
+              </Headline>
+          </ArticleInfo>
+
           <Sentiment>
             <SentimentBar>
-              <PositiveSentiment value={currentArticleInfo.content_sentiment.pos} />
-              <NegativeSentiment value={currentArticleInfo.content_sentiment.neg} />
-              <NeutralSentiment value={currentArticleInfo.content_sentiment.neu} />
+              <PositiveSentiment value={0.2} />
+              <NegativeSentiment value={0.5} />
+              <NeutralSentiment value={0.7} />
             </SentimentBar>
-            <SentimentDescriptions>
-              <Descriptor color="#7ADD7E">
-                <DescriptorBox />
-                {Math.round(currentArticleInfo.content_sentiment.pos * 100)}% Positive
-                </Descriptor>
-              <Descriptor color="#FF8F51">
-                <DescriptorBox />
-                {Math.round(currentArticleInfo.content_sentiment.neg * 100)}% Negative
-                </Descriptor>
-            </SentimentDescriptions>
           </Sentiment>
-        </CurrentArticleHeader>
 
-        <Tabs>
-          <TabItem selected={selectedTab == "first" ? true : false} onClick={() => {
-            setSelectedTab("first")
-          }}>
-            <AiFillAppstore color={selectedTab == "first" ? "white" : "#535760"} size="30px" />
-          </TabItem>
-          <TabItem selected={selectedTab == "second" ? true : false} onClick={() => {
-            setSelectedTab("second")
-          }}>
-            <BsFillPeopleFill color={selectedTab == "second" ? "white" : "#535760"} size="30px" />
-          </TabItem>
-          <TabItem selected={selectedTab == "third" ? true : false} onClick={() => {
-            // setSelectedTab("third")
-            chrome.tabs.create({ active: true, url: '/popup.html' });
-          }}>
-            <AiFillSetting color={selectedTab == "third" ? "white" : "#535760"} size="30px" />
-          </TabItem>
-        </Tabs>
 
-      </PopupContainer>
-    )
-  } else if (loadState == "dashboard") {
-    return (
-      <DashboardContainer>
-        <LeftSidebar>
-          <Article>
-            <ArticleInfo>
-              <Source>
-                New York Times
-              </Source>
-              <Headline>
-                {currentArticleInfo.headline}
-              </Headline>
-            </ArticleInfo>
+        </Article>
 
-            <Sentiment>
-              <SentimentBar>
-                <PositiveSentiment value={currentArticleInfo.content_sentiment.pos} />
-                <NegativeSentiment value={currentArticleInfo.content_sentiment.neg} />
-                <NeutralSentiment value={currentArticleInfo.content_sentiment.neu} />
-              </SentimentBar>
-              <SentimentDescriptions>
-                <Descriptor color="#7ADD7E">
-                  <DescriptorBox />
-                  {Math.round(currentArticleInfo.content_sentiment.pos * 100)}% Positive
-                </Descriptor>
-                <Descriptor color="#FF8F51">
-                  <DescriptorBox />
-                  {Math.round(currentArticleInfo.content_sentiment.neg * 100)}% Negative
-                </Descriptor>
-              </SentimentDescriptions>
-            </Sentiment>
+        <NavButtons>
+          {dashboardView.view == "article" ?
+            <HomeButton
+              onClick={() => {
+                setDashboardView({ view: 'cluster', data: null })
+              }}
+            >
+              <BiHomeAlt size="36px" />
+            </HomeButton>
+            : null}
+        </NavButtons>
+      </LeftSidebar>
 
-            <Keywords>
-              {Object.keys(currentArticleInfo.top_words).map((word) => {
-                return (
-                  <Keyword>{word}</Keyword>
-                )
-              })}
-            </Keywords>
 
-          </Article>
-        </LeftSidebar>
+      <MainContent>
+        <ReactFlow
+          elements={dashboardView.view == "cluster" ? clusters :
+            articles.filter(article => article.data && article.data.cluster_id == dashboardView.data.cluster_id)
+          }
+          nodeTypes={{ cluster: ClusterNode, main: MainNode, article: ArticleNode }}
+          elementsSelectable={false}
+          nodesConnectable={false}
+          onNodeDoubleClick={(e, cluster) => {
 
-        <MainContent>
-          <ReactFlow elements={elements} nodeTypes={{ cluster: ClusterNode, main: MainNode }} />
-        </MainContent>
-      </DashboardContainer>
-    )
-  } else {
-    return (
-      <LoadingContainer>
-        Loading
-      </LoadingContainer>
-    )
-  }
+            if (dashboardView.view == "cluster") {
+              setDashboardView({
+                view: "article", data: {
+                  cluster_id: cluster.id
+                }
+              })
+            }
+
+          }}
+        />
+      </MainContent>
+    </DashboardContainer>
+  )
 
 }
 
