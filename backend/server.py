@@ -28,15 +28,14 @@ class Article(Resource):
 
 class Perspectives(Resource):
     def get(self):
-        args = request.args
-        url = args.get("url")
+        # args = request.args
+        # url = args.get("url")
         # articles = get_articles(url)
         # clusters = cluster(articles)
         articles = [
-            {
                 {
-                id: '1', 
-                type: 'article', 
+                "id": '1', 
+                "type": 'article', 
                 "data": {
                 "url": "http://google.com",
                 "headline": "Headline 1",
@@ -51,7 +50,6 @@ class Perspectives(Resource):
                 },
             "position": { "x": 200, "y": 200 }
             },
-            }
         ]
         
         clusters = [
@@ -71,11 +69,14 @@ class Perspectives(Resource):
             "position": { "x": 250, "y": 200 }
             },
         ]
-        return {articles, clusters}
+        return {"articles": articles, "clusters": clusters}
 
 
 api.add_resource(Article, "/get-article-data")
 api.add_resource(Perspectives, "/get-perspectives")
+@app.route('/')
+def hello():
+    return "Hello World"
 if __name__ == '__main__':
     # host = "0.0.0.0"
     host = None
