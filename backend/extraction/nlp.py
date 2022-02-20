@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T16:43:29-08:00
+# @Last modified time: 2022-02-19T17:30:00-08:00
 
 
 def _set_cwd():
@@ -79,8 +79,7 @@ def get_sentiment(text_selection) -> dict:
 def get_top_phrases(word_list: list, LIMIT: int = 100, THRESH: int = 1) -> dict:
     finder = collocations.TrigramCollocationFinder.from_words(word_list)
     filt = dict([e for e in finder.ngram_fd.most_common(LIMIT) if e[1] > THRESH])
-    key_iter = list(filt.keys())
-    return  {f"phrase_{k_i+1}": {', '.join(key_iter[k_i]): filt[key_iter[k_i]]} for k_i in range(len(key_iter))}
+    return  {', '.join(k): v for k, v in filt.items()}
 
 def summarize_content(content: str) -> list:
     # get sentences
