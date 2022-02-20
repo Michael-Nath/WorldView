@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T00:30:59-08:00
+# @Last modified time: 2022-02-20T00:51:19-08:00
 
 # def _set_cwd():
 #     import os
@@ -341,31 +341,37 @@ for query in search_queries:
                 urls_accessed.append(link)
                 node_content[link] = child_meta_data
 
-def format_as_dataframe(node_content):
-    # to/from/weights
-    nodes_relation: dict = {str(i): list(node_content.keys())[i] for i in range(len(node_content))}
+nodes_relation: dict = {str(i): list(node_content.keys())[i] for i in range(len(node_content))}
+
+def format_as_dataframes(node_content, nodes_relation):
+    # EDGELIST: to/from/weights
     all_contents = [d['content'] for d in node_content.values()]
     out = determine_similarity_tfidf(list(all_contents))
-    df = pd.DataFrame(out, columns=nodes_relation)
-    df.values[[np.arange(len(df))]*2] = np.nan
-    df = df.stack().reset_index()
-    df.columns = ['to', 'from', 'weight']
-    df['weight'] = df['weight'].round(4)
+    df_edges = pd.DataFrame(out, columns=nodes_relation)
+    df.values[[np.arange(len(df_edges))]*2] = np.nan
+    df_edges = df_edges.stack().reset_index()
+    df_edges.columns = ['to', 'from', 'weight']
+    df_edges['weight'] = df_edges['weight'].round(4)
 
-    # node attributes
+    # Node attributes
+    nodes = pd.DataFrame(nodes_relation.)
 
     return df
 
-df = format_as_dataframe(node_content)
+df = format_as_dataframe(node_content, nodes_relation)
 
-def convert_to_graph():
+temp = node_content['https://www.nytimes.com/2022/02/17/us/fourth-dose-covid-vaccine.html']
+list(temp.keys())
+temp['content_summary']
+
+def convert_to_graph(df):
     # Source, target
     G = nx.from_pandas_edgelist(df, 'to', 'from', ['weight'])
-
     # JSON file
+    return G
 
+G = convert_to_graph(df)
 
-nx.draw(G)
 layout = nx.spring_layout(G)
 fig = plt.figure(figsize=(12, 8))
 nx.draw(G, layout)

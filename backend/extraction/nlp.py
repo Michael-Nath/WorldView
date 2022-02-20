@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T00:27:42-08:00
+# @Last modified time: 2022-02-20T00:51:18-08:00
 
 
 def _set_cwd():
@@ -65,8 +65,8 @@ def kw_frequency(word_list: list) -> dict:
 def get_top_words(selection: str) -> dict:
     doc = nlp(selection)
     entities = [{'word': X.text, 'type': X.label_} for X in doc.ents]
-    num_tags = [f"entity_{i+1}" for i in range(len(doc.ents))]
-    return dict(zip(num_tags, entities))
+    # num_tags = [f"entity_{i+1}" for i in range(len(doc.ents))]
+    return entities
 
 # def get_pos_tags(word_list: list) -> dict:
 #     output = dict(pos_tag(word_list))
@@ -107,8 +107,7 @@ def summarize_content(content: str) -> list:
                     else:
                         sentence_scores[sent] += word_frequencies[word]
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
-    return "\n".join(summary_sentences)
-
+    return summary_sentences
 
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
