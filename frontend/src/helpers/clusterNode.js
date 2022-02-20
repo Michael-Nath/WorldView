@@ -100,7 +100,6 @@ const ClusterNode = ({ data }) => {
       <Handle
         type="target"
         position="left"
-        style={{ border: 'none' }}
       />
       <Container>
 
@@ -134,8 +133,7 @@ const ClusterNode = ({ data }) => {
 
       <Handle
         type="source"
-        position="top"
-        style={{ border: 'none' }}
+        position="right"
       />
     </>
   )

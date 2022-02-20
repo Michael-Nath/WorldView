@@ -20,7 +20,6 @@ const MainNode = ({ data }) => {
       <Handle
         type="source"
         position="top"
-        style={{ border: 'none' }}
       />
     </Container>
   )
