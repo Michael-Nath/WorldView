@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T15:57:14-08:00
+# @Last modified time: 2022-02-19T16:43:29-08:00
 
 
 def _set_cwd():
@@ -109,7 +109,7 @@ def summarize_content(content: str) -> list:
                         sentence_scores[sent] += word_frequencies[word]
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
     return "\n".join(summary_sentences)
-    
+
 
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
