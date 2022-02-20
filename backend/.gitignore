@@ -1,2 +1,6 @@
 __pycache__
 treehacks
+# Exclude virtual environment
+extraction/extraction_env
+# Exclude ref text
+/ref
