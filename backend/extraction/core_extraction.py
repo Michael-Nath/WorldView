@@ -12,8 +12,8 @@ def _set_cwd():
     os.chdir(dname)
 # _set_cwd()
 
-# from backend import scraping, nlp
-from extraction import scraping, nlp
+import scraping, nlp
+# from extraction import scraping, nlp
 
 print(f"{__file__}: DEPENDENCIES INSTALLED")
 
@@ -30,6 +30,10 @@ def CORE_EXECUTION(NODE_URL: str) -> dict:
 
     print(f"{__file__}: SUCCESFULLY EXECUTED")
     return ATTRIBUTES
+
+def SIMILARITY_HELPER(NODE_URL: str):
+    META_DATA = scraping._GET_CONTENT(NODE_URL)
+    return nlp.GET_CONTENT(META_DATA)
 
 """TEST"""
 # URL = "https://www.reuters.com/world/europe/shelling-breaks-out-east-ukraine-west-moscow-dispute-troop-moves-2022-02-17/"

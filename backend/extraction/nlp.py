@@ -17,7 +17,8 @@ from re import sub
 from nltk import collocations, pos_tag, corpus, word_tokenize
 from heapq import nlargest
 from nltk.corpus import stopwords
-from extraction.util import download_nltk_dependecy
+# from extraction.util import download_nltk_dependecy
+from util import download_nltk_dependecy
 _DEPS = ('stopwords', 'punkt', 'averaged_perceptron_tagger', 'vader_lexicon', 'wordnet')
 for d in _DEPS:
     download_nltk_dependecy(d)
@@ -110,6 +111,11 @@ def summarize_content(content: str) -> list:
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
     return "\n".join(summary_sentences)
 
+def GET_CONTENT(URL_META_DATA: dict):
+    _content = URL_META_DATA['content']
+    all_clean_words = get_clean_words(_content, uniq = False)
+    return all_clean_words
+
 
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
@@ -124,7 +130,7 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     top_phrases = get_top_phrases(all_clean_words)
     uniq_clean_words = list(set(all_clean_words))
     pos_tags = get_pos_tags(uniq_clean_words)
-
+    top_words = [{"word": x["word"], "type": x["type"]} for x in top_words.values() if x["type"] in ["GPE", "ORG", "PERSON"]]
     JSON_OBJECT = {'content_sentiment': content_sentiment,
                    'content_summary': content_summary,
                    'headline_sentiment': headline_sentiment,
