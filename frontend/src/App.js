@@ -165,6 +165,7 @@ const App = () => {
     if (views.length == 0) {
       setLoadState("dashboard")
 
+      // Get previous accessed tab (need to fix this...)
       chrome.tabs.query({
         active: false
       }, (tabs) => {
