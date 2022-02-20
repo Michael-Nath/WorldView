@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "WorldView",
+  "version": "1.0.0",
+  "description": "TreeHacks 2022",
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://54.219.124.53:5000/*"
+  ],
+  "author": "Joseph Tey",
+  "short_name": "TreeHacks",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "TreeHacks"
+  }
+}
