@@ -2,7 +2,7 @@ from typing import Dict
 from flask import Flask, request
 from typing import Dict
 from flask_restful import Resource, Api
-from extraction import core_extraction
+from extraction.core_extraction import CORE_EXECUTION
 from flask_cors import CORS
 app = Flask(__name__)
 api = Api(app)
@@ -28,8 +28,8 @@ class Article(Resource):
 
 class Perspectives(Resource):
     def get(self):
-        # args = request.args
-        # url = args.get("url")
+        args = request.args
+        url = args.get("url")
         # articles = get_articles(url)
         # clusters = cluster(articles)
         articles = [
@@ -71,13 +71,15 @@ class Perspectives(Resource):
         ]
         return {"articles": articles, "clusters": clusters}
 
+class Hello(Resource):
+    def get(self):
+        return "Hello"
 
 api.add_resource(Article, "/get-article-data")
 api.add_resource(Perspectives, "/get-perspectives")
-@app.route('/')
-def hello():
-    return "Hello World"
+api.add_resource(Hello, "/")
+
 if __name__ == '__main__':
-    # host = "0.0.0.0"
-    host = None
+    host = "0.0.0.0"
+    # host = None
     app.run(debug=True, host=host)
