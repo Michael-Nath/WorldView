@@ -85,6 +85,7 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   padding: 50px;
+  gap: 30px;
 `
 
 const ArticleInfo = styled.div`
@@ -204,7 +205,7 @@ const HoverInfo = styled.div`
   background: #393a3f;
   display: flex;
   flex-direction: column;
-  border-radius: 15px;
+  border-radius: 10px;
   padding: 20px;
 `
 
@@ -481,33 +482,30 @@ const App = () => {
             </Sentiment>
 
             <Keywords>
-              {Object.keys(currentArticleInfo.top_words).map((word) => {
+              {currentArticleInfo.top_words.map((word) => {
                 return (
-                  <Keyword>{word}</Keyword>
+                  <Keyword>{word.word}</Keyword>
                 )
               })}
             </Keywords>
 
           </Article>
-          <HoverInfo>
-            {hoverInfo ?
-              <>
-
-                <HoverInfoTitle>
-                  {hoverInfo.title}
-                </HoverInfoTitle>
-                <HoverInfoSummary>
-                  <ul>
-                    {hoverInfo.summary.map((sentence => {
-                      return (
-                        <li>{sentence}</li>
-                      )
-                    }))}
-                  </ul>
-                </HoverInfoSummary>
-              </>
-              : null}
-          </HoverInfo>
+          {hoverInfo ?
+            <HoverInfo>
+              <HoverInfoTitle>
+                {hoverInfo.title}
+              </HoverInfoTitle>
+              <HoverInfoSummary>
+                <ul>
+                  {hoverInfo.summary.map((sentence => {
+                    return (
+                      <li>{sentence}</li>
+                    )
+                  }))}
+                </ul>
+              </HoverInfoSummary>
+            </HoverInfo>
+            : null}
 
           <NavButtons>
             {dashboardView.view == "article" ?
