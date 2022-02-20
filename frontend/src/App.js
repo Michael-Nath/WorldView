@@ -8,6 +8,7 @@ import { Loader, Dimmer } from 'semantic-ui-react'
 import ReactFlow from 'react-flow-renderer';
 import ClusterNode from './helpers/clusterNode'
 import MainNode from './helpers/mainNode'
+import CustomEdge from './helpers/customEdge'
 import ArticleNode from './helpers/articleNode'
 import { BiHomeAlt, BiArrowBack, BiNetworkChart } from "react-icons/bi"
 
@@ -212,15 +213,17 @@ const HoverInfo = styled.div`
   flex-direction: column;
   border-radius: 10px;
   padding: 20px;
+  gap: 10px;
 `
 
 const HoverInfoTitle = styled.div`
-  font-size: 25px;
+  font-size: 17px;
   font-family: Inter-Bold;
 `
 
 const HoverInfoSummary = styled.div`
-  font-size: 15px;
+  font-size: 12px;
+  line-height: 15px;
   opacity: 0.5;
   font-family: Inter;
 `
@@ -348,9 +351,15 @@ const clusters = [
     },
     position: { x: 358 + (Math.cos(z) * 300), y: 323 + (Math.sin(z) * 300) }
   },
-  { id: 'e1-2', source: '1', target: '2', animated: false },
-  { id: 'e1-3', source: '1', target: '3', animated: false },
-  { id: 'e1-4', source: '1', target: '4', animated: false }
+  {
+    id: 'ec1-2', source: '1', target: '2'
+  },
+  {
+    id: 'ec1-3', source: '1', target: '3'
+  },
+  {
+    id: 'ec1-4', source: '1', target: '4'
+  }
 ];
 
 const articles = [
@@ -415,12 +424,12 @@ const articles = [
     position: { x: 100, y: 100 }
   },
   {
-    id: 'e1-2', source: '1', target: '2', label: 0.5, data: {
+    id: 'e1-2', type: 'custom', source: '1', target: '2', label: 0.5, data: {
       similarity: 0.5
     }
   },
   {
-    id: 'e1-3', source: '1', target: '3', label: 0.4, data: {
+    id: 'e1-3', type: 'custom', source: '1', target: '3', label: 0.4, data: {
       similarity: 0.7
     }
   }
@@ -701,13 +710,13 @@ const App = () => {
                 {hoverInfo.title}
               </HoverInfoTitle>
               <HoverInfoSummary>
-                <ul>
-                  {hoverInfo.summary.map((sentence => {
-                    return (
-                      <li>{sentence}</li>
-                    )
-                  }))}
-                </ul>
+                {hoverInfo.summary.map((sentence => {
+                  return (
+                    <>
+                      {sentence} <br />
+                    </>
+                  )
+                }))}
               </HoverInfoSummary>
             </HoverInfo>
             : null}
@@ -731,6 +740,7 @@ const App = () => {
             elements={dashboardView.view == "cluster" ? clusters :
               [...articles.filter(article => article.data && article.data.cluster_id == dashboardView.data.cluster_id), ...articles.filter(article => article.source)]
             }
+            edgeTypes={{ custom: CustomEdge }}
             nodeTypes={{ cluster: ClusterNode, main: MainNode, article: ArticleNode }}
             elementsSelectable={false}
             nodesConnectable={false}
