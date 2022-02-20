@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: scraping_defs.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T16:42:31-08:00
+# @Last modified time: 2022-02-19T16:46:00-08:00
 # @Description: Scrapes the headers and text body from all the files.
 #               Most basic, source information needed. No abstraction.
 
