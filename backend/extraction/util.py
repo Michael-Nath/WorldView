@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: util.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T05:06:10-08:00
+# @Last modified time: 2022-02-20T03:59:24-08:00
 
 # Purpose: utility functions
 

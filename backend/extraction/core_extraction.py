@@ -3,14 +3,14 @@
 # @Email:  shounak@stanford.edu
 # @Filename: the_glue.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T04:47:38-08:00
+# @Last modified time: 2022-02-19T23:20:46-08:00
 
 def _set_cwd():
     import os
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
-_set_cwd()
+# _set_cwd()
 
 import scraping, nlp
 from util import _print

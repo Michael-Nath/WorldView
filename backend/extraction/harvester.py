@@ -3,6 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
+
 # @Last modified time: 2022-02-20T05:09:54-08:00
 
 def _set_cwd():
@@ -20,6 +21,7 @@ from core_extraction import CORE_EXECUTION
 from util import (safe_request, valid_getreq,
                   time_limit, TimeoutException, _print,
                   download_nltk_dependecy)
+
 import numpy as np
 # import search_engines
 import requests
@@ -38,7 +40,6 @@ download_nltk_dependecy('omw-1.4')
 download_nltk_dependecy('punkt')
 from nltk.corpus import stopwords
 
-# __file__ = 'harverster.py'
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
@@ -47,8 +48,9 @@ _ = """
 ########################################## HYPERPARAMETERS #########################################
 #################################################################################################"""
 # STD_THRESH = 0.3
-SEED_URL = "https://www.nbcnews.com/news/world/ottawa-police-appear-end-protesters-hold-streets-canadas-parliament-rcna16974"
+# SEED_URL = "https://www.nbcnews.com/news/world/ottawa-police-appear-end-protesters-hold-streets-canadas-parliament-rcna16974"
 SEARCH_FORWARD = 3
+
 TOP_N = 2
 stop_words = set(stopwords.words('english'))
 
@@ -60,6 +62,7 @@ TOTAL_SENTIMENTS = []
 # Harvesting
 depth = 0
 MAX_DEPTH = 1
+
 TIMEOUT = 20
 SEED_TIMEOUT = TIMEOUT + 10
 SIMILARTY_THRESH = 0.7
@@ -344,6 +347,7 @@ def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEAR
     # TODO: People and ORGS and Location as top words
 
     G = convert_to_graph(df_edges)
+
     coordinates, nx_layout = get_coordinates(G)
 
     # Add coordinates to nodelist
