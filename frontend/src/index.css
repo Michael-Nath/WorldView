@@ -3,6 +3,11 @@
   src: url('./assets/inter.ttf')
  }
 
+ @font-face {
+  font-family: "Inter-Bold";
+  src: url('./assets/Inter-Bold.ttf')
+ }
+
 html, body {
   height: 120px;
   background: #202124;
