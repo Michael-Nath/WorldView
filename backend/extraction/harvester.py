@@ -3,21 +3,25 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T04:26:17-08:00
 
-# def _set_cwd():
-#     import os
-#     abspath = os.path.abspath(__file__)
-#     dname = os.path.dirname(abspath)
-#     os.chdir(dname)
-# _set_cwd()
+# @Last modified time: 2022-02-20T05:09:54-08:00
 
-from backend.extraction.core_extraction import CORE_EXECUTION
-from backend.extraction.util import (safe_request, valid_getreq,
-                                     time_limit, TimeoutException, _print,
-                                     download_nltk_dependecy)
-# import extraction.core_extraction as SINGLE_EXTRACTION
-# from extraction.util import safe_request, check_validity
+def _set_cwd():
+    import os
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+_set_cwd()
+
+# from backend.extraction.core_extraction import CORE_EXECUTION
+# from backend.extraction.util import (safe_request, valid_getreq,
+#                                      time_limit, TimeoutException, _print,
+#                                      download_nltk_dependecy)
+from core_extraction import CORE_EXECUTION
+from util import (safe_request, valid_getreq,
+                  time_limit, TimeoutException, _print,
+                  download_nltk_dependecy)
+
 import numpy as np
 # import search_engines
 import requests
@@ -36,7 +40,6 @@ download_nltk_dependecy('omw-1.4')
 download_nltk_dependecy('punkt')
 from nltk.corpus import stopwords
 
-__file__ = 'harverster.py'
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
@@ -45,8 +48,9 @@ _ = """
 ########################################## HYPERPARAMETERS #########################################
 #################################################################################################"""
 # STD_THRESH = 0.3
-SEED_URL = "https://www.cnn.com/2022/02/19/health/fourth-covid-19-vaccine-dose-us/index.html"
-SEARCH_FORWARD = 5
+# SEED_URL = "https://www.nbcnews.com/news/world/ottawa-police-appear-end-protesters-hold-streets-canadas-parliament-rcna16974"
+SEARCH_FORWARD = 3
+
 TOP_N = 2
 stop_words = set(stopwords.words('english'))
 
@@ -57,7 +61,8 @@ TOTAL_SENTIMENTS = []
 
 # Harvesting
 depth = 0
-MAX_DEPTH = 2
+MAX_DEPTH = 1
+
 TIMEOUT = 20
 SEED_TIMEOUT = TIMEOUT + 10
 SIMILARTY_THRESH = 0.7
@@ -114,6 +119,7 @@ def get_queries(SEED_URL, TOP_N=TOP_N):
     if SEED_META_DATA is None:
         _print("Couldn't find seed meta data", 'LIGHTRED_EX')
         # raise KeyError("Couldn't find seed meta data")
+        return None
     search_queries = list(SEED_META_DATA['top_phrases'].keys())[:TOP_N]
     return search_queries
 
@@ -328,12 +334,14 @@ def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEAR
     urls_accessed, titles_accessed, node_content = discover_relevant_articles(
         SEED_URL, urls_accessed, titles_accessed, node_content,
         depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEARCH_FORWARD)
+    _print('\n\nFinished Discovery')
 
     # import json
     # with open('lots_of_meta_data_AGAIN.json', 'w', encoding='utf-8') as f:
     #     json.dump(node_content, f, indent=4, sort_keys=True)
 
     df_edges, edge_list, node_list = package_information(node_content)
+    _print('\n\nFinished packaging edge and node lists')
 
     # TODO: Depth to JSON
     # TODO: People and ORGS and Location as top words
@@ -347,13 +355,23 @@ def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEAR
         id = node['id']
         node['position'] = coordinates.get(id)
 
+    _print('\n\nFinalized edge and node lists')
+
     # fig = plt.figure(figsize=(12, 8))
     # nx.draw(G, nx_layout)
     # _ = nx.draw_networkx_edge_labels(G, pos=nx_layout)
     # plt.show()
 
-    return edge_list, node_list
+    return edge_list, node_list, G
 
-edge_list, node_list = MASTER_EXECUTION(SEED_URL)
+# # FUNCTION: Cluster Graph
+# cluster_dict = some_func(node_list)
+#
+# cluster_nodes = list(cluster_dict.keys())
+# cluster_edges = []
+# for n in cluster_nodes:
+#     cluster_edges.append(n)
+#
+# edge_list, node_list, G = MASTER_EXECUTION(SEED_URL)
 
 # EOF

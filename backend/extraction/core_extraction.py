@@ -12,7 +12,6 @@ def _set_cwd():
     os.chdir(dname)
 # _set_cwd()
 
-# from backend import scraping, nlp
 import scraping, nlp
 from util import _print
 

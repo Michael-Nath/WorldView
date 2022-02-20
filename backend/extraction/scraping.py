@@ -3,16 +3,17 @@
 # @Email:  shounak@stanford.edu
 # @Filename: scraping_defs.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T02:12:52-08:00
+# @Last modified time: 2022-02-20T04:46:45-08:00
+
 # @Description: Scrapes the headers and text body from all the files.
 #               Most basic, source information needed. No abstraction.
 
-# def _set_cwd():
-#     import os
-#     abspath = os.path.abspath(__file__)
-#     dname = os.path.dirname(abspath)
-#     os.chdir(dname)
-# _set_cwd()
+def _set_cwd():
+    import os
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+_set_cwd()
 
 import requests
 from itertools import chain
