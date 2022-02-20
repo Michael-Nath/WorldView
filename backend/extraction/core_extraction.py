@@ -13,7 +13,7 @@ def _set_cwd():
 _set_cwd()
 
 # from backend import scraping, nlp
-import scraping, nlp
+from extraction import scraping, nlp
 
 print(f"{__file__}: DEPENDENCIES INSTALLED")
 

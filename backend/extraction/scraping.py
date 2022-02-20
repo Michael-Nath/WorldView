@@ -16,7 +16,7 @@
 
 import requests
 from itertools import chain
-from util import safe_request
+from extraction.util import safe_request
 
 print(f"{__file__}: DEPENDENCIES INSTALLED")
 
