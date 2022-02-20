@@ -57,5 +57,5 @@ def cluster_with_kprotoype(meta_data_of_documents):
     for index, row in extracted_df.iterrows():
         dict_to_return[row["url"]] = row["cluster"]
     return dict_to_return
-g
+
 
