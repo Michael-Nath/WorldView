@@ -26,8 +26,56 @@ class Article(Resource):
         return payload
         # here the scraping function should be called with the url as input
 
+class Perspectives(Resource):
+    def get(self):
+        args = request.args
+        url = args.get("url")
+        # articles = get_articles(url)
+        # clusters = cluster(articles)
+        articles = [
+            {
+                {
+                id: '1', 
+                type: 'article', 
+                "data": {
+                "url": "http://google.com",
+                "headline": "Headline 1",
+                "summary": ["hello there", "this is great"],
+                "keywords": ["Top", "Low"],
+                "cluster_id": "2",
+                "sentiment": {
+                "pos": 1.1,
+                "neg": 0.2,
+                "neu": 0.1
+                    },
+                },
+            "position": { "x": 200, "y": 200 }
+            },
+            }
+        ]
+        
+        clusters = [
+            {
+            "id": '2', 
+            "type": 'cluster', 
+            "data": {
+                "sentiment": {
+                    "pos": 0.7,
+                    "neg": 0.2,
+                    "neu": 0.1
+                },
+                "numNodes": 5,
+                "degree": 3,
+                "keywords": ["Test", "hey", "lol"]
+            },
+            "position": { "x": 250, "y": 200 }
+            },
+        ]
+        return {articles, clusters}
+
 
 api.add_resource(Article, "/get-article-data")
+api.add_resource(Perspectives, "/get-perspectives")
 if __name__ == '__main__':
     # host = "0.0.0.0"
     host = None
