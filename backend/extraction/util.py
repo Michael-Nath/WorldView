@@ -3,12 +3,27 @@
 # @Email:  shounak@stanford.edu
 # @Filename: util.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T18:28:05-08:00
+# @Last modified time: 2022-02-19T20:08:47-08:00
 
 # Purpose: utility functions
 
 import nltk
 import requests
+import signal
+from contextlib import contextmanager
+
+class TimeoutException(Exception): pass
+
+@contextmanager
+def time_limit(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 def download_nltk_dependecy(dep):
     status = nltk.download(dep)
