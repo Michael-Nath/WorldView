@@ -17,7 +17,7 @@ from re import sub
 from nltk import collocations, pos_tag, corpus, word_tokenize
 from heapq import nlargest
 from nltk.corpus import stopwords
-from extraction.util import download_nltk_dependecy, _print
+from util import download_nltk_dependecy, _print
 # from util import download_nltk_dependecy
 _DEPS = ('stopwords', 'punkt', 'averaged_perceptron_tagger', 'vader_lexicon', 'wordnet')
 for d in _DEPS:

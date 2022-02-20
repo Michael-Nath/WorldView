@@ -24,8 +24,8 @@ def cluster_with_kmeans(meta_data_of_documents):
 
 def cluster_with_kprotoype(meta_data_of_documents):
     doc_insights = []
-    for url in meta_data_of_documents:
-        meta_datum = meta_data_of_documents[url]
+    for doc in meta_data_of_documents:
+        meta_datum = doc["data"]
         top_words = sorted(meta_datum["top_words"], key=lambda x: x["word"])
         top_words_uniq = {}
         for d in top_words:
@@ -33,7 +33,7 @@ def cluster_with_kprotoype(meta_data_of_documents):
             top_words_uniq.update(dic)
         top_words = top_words_uniq
         data = {
-        "url": url,
+        "url": meta_datum["url"],
         "neg_content_sentiment": meta_datum["content_sentiment"]["neg"],
         "neu_content_sentiment": meta_datum["content_sentiment"]["neu"],
         "pos_content_sentiment": meta_datum["content_sentiment"]["pos"],
@@ -57,7 +57,5 @@ def cluster_with_kprotoype(meta_data_of_documents):
     for index, row in extracted_df.iterrows():
         dict_to_return[row["url"]] = row["cluster"]
     return dict_to_return
+g
 
-# with open("lots_of_meta_data.json", "r") as f:
-#     data = json.load(f)
-#     print(cluster_with_kprotoype(data))

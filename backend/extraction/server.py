@@ -2,7 +2,7 @@ from typing import Dict
 from flask import Flask, request
 from typing import Dict
 from flask_restful import Resource, Api
-from extraction.core_extraction import CORE_EXECUTION
+from core_extraction import CORE_EXECUTION
 from flask_cors import CORS
 app = Flask(__name__)
 api = Api(app)

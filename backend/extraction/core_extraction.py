@@ -13,8 +13,8 @@ def _set_cwd():
 # _set_cwd()
 
 # from backend import scraping, nlp
-from extraction import scraping, nlp
-from extraction.util import _print
+import scraping, nlp
+from util import _print
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
