@@ -12,8 +12,8 @@ def _set_cwd():
     os.chdir(dname)
 # _set_cwd()
 
-import scraping, nlp
-# from extraction import scraping, nlp
+# import scraping, nlp
+from extraction import scraping, nlp
 
 print(f"{__file__}: DEPENDENCIES INSTALLED")
 
