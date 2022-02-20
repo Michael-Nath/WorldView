@@ -71,13 +71,15 @@ class Perspectives(Resource):
         ]
         return {"articles": articles, "clusters": clusters}
 
+class Hello(Resource):
+    def get(self):
+        return "Hello"
 
 api.add_resource(Article, "/get-article-data")
 api.add_resource(Perspectives, "/get-perspectives")
-@app.route('/')
-def hello():
-    return "Hello World"
+api.add_resource(Hello, "/")
+
 if __name__ == '__main__':
-    # host = "0.0.0.0"
-    host = None
+    host = "0.0.0.0"
+    # host = None
     app.run(debug=True, host=host)
