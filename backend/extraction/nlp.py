@@ -6,12 +6,12 @@
 # @Last modified time: 2022-02-19T16:43:29-08:00
 
 
-def _set_cwd():
-    import os
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-_set_cwd()
+# def _set_cwd():
+#     import os
+#     abspath = os.path.abspath(__file__)
+#     dname = os.path.dirname(abspath)
+#     os.chdir(dname)
+# _set_cwd()
 
 from re import sub
 from nltk import collocations, pos_tag, corpus, word_tokenize

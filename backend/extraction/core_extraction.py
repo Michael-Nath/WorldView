@@ -10,7 +10,7 @@ def _set_cwd():
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
-_set_cwd()
+# _set_cwd()
 
 # from backend import scraping, nlp
 from extraction import scraping, nlp
