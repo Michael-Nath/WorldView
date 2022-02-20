@@ -109,7 +109,7 @@ def summarize_content(content: str) -> list:
                     else:
                         sentence_scores[sent] += word_frequencies[word]
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
-    return "\n".join(summary_sentences)
+    return summary_sentences
 
 def GET_CONTENT(URL_META_DATA: dict):
     _content = URL_META_DATA['content']
