@@ -296,13 +296,17 @@ const ArticleRightMain = styled.div`
   align-items: center;
   justify-content: center;
 `
+const w = Math.random() * 2 * Math.PI;
+const x = Math.random() * 2 * Math.PI;
+const y = Math.random() * 2 * Math.PI;
+const z = Math.random() * 2 * Math.PI;
 
 const clusters = [
   {
     id: '1', type: 'main', data: {
       label: 'Perspectives'
     },
-    position: { x: (966 / 2) - 125, y: (766 / 2) - 60 }
+    position: { x: 358, y: 323 }
   },
   {
     id: '2', type: 'cluster', data: {
@@ -315,7 +319,7 @@ const clusters = [
       degree: 3,
       keywords: ["Test", "hey", "lol"]
     },
-    position: { x: 250, y: 200 }
+    position: { x: 358 + (Math.cos(x) * 300), y: 323 + (Math.sin(x) * 300) }
 
   },
   {
@@ -329,7 +333,7 @@ const clusters = [
       degree: 3,
       keywords: ["Test", "hey", "lol"]
     },
-    position: { x: (966 / 2) + 200, y: (766 / 2) - 60 }
+    position: { x: 358 + (Math.cos(y) * 300), y: 323 + (Math.sin(y) * 300) }
   },
   {
     id: '4', type: 'cluster', data: {
@@ -342,7 +346,7 @@ const clusters = [
       degree: 3,
       keywords: ["Test", "hey", "lol"]
     },
-    position: { x: (966 / 2) - 400, y: (766 / 2) - 60 }
+    position: { x: 358 + (Math.cos(z) * 300), y: 323 + (Math.sin(z) * 300) }
   },
   { id: 'e1-2', source: '1', target: '2', animated: false },
   { id: 'e1-3', source: '1', target: '3', animated: false },
@@ -411,12 +415,12 @@ const articles = [
     position: { x: 100, y: 100 }
   },
   {
-    id: 'e1-2', source: '1', target: '2', data: {
+    id: 'e1-2', source: '1', target: '2', label: 0.5, data: {
       similarity: 0.5
     }
   },
   {
-    id: 'e1-3', source: '1', target: '3', data: {
+    id: 'e1-3', source: '1', target: '3', label: 0.4, data: {
       similarity: 0.7
     }
   }
@@ -435,6 +439,7 @@ const App = () => {
     data: null
   })
   const [currentArticleInfo, setCurrentArticleInfo] = useState(null)
+  const [currentPerspectives, setCurrentArticlePerspectives] = useState(null)
 
   const [hoverInfo, setHoverInfo] = useState(null)
   const [dashboardView, setDashboardView] = useState({
@@ -469,6 +474,12 @@ const App = () => {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.storage.sync.get(tabs[0].url, data => {
           setCurrentArticleInfo(data[tabs[0].url])
+        })
+      })
+
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.storage.sync.get(tabs[0].url + "_perspectives", data => {
+          setCurrentArticlePerspectives(data[tabs[0].url + "_perspectives"])
         })
       })
 
@@ -524,114 +535,47 @@ const App = () => {
 
                 </CurrentArticleHeader>
 
-                <DiversitySummary>
-                  <DiversityArticle
-                    onClick={() => {
-                      setPageType({
-                        type: 'specific', data: {
-                          headline: "Headline 1",
-                          summary: ["Hello", "there", "this"]
-                        }
-                      })
-                    }}
-                  >
-                    <ArticleLeft>
-                      <ArticleLeftHeadline>
-                        Headline 1
-              </ArticleLeftHeadline>
-                      {/* <Keywords>
-                <Keyword>Internet of Things</Keyword>
-                <Keyword>Tech</Keyword>
-              </Keywords> */}
-                    </ArticleLeft>
-                    <ArticleRight>
-                      <ArticleRightMain>
-                        50%
-                      </ArticleRightMain>
-                      <ArticleLeftSubTitle>
-                        similar
-                      </ArticleLeftSubTitle>
-                    </ArticleRight>
-                    <ProgressBar progress={0.5} />
-                  </DiversityArticle>
+                {currentPerspectives ?
+                  <DiversitySummary>
+                    {currentPerspectives.clusters.map((cluster) => {
 
-                  <DiversityArticle
-                    onClick={() => {
-                      setPageType({
-                        type: 'specific', data: {
-                          headline: "Headline 2",
-                          summary: ["Hello", "there", "this"]
-                        }
-                      })
-                    }}
-                  >
-                    <ArticleLeft>
-                      <ArticleLeftHeadline>
-                        Headline 2
-              </ArticleLeftHeadline>
-                    </ArticleLeft>
-                    <ArticleRight>
-                      <ArticleRightMain>
-                        46%
-                      </ArticleRightMain>
-                      <ArticleLeftSubTitle>
-                        similar
-                      </ArticleLeftSubTitle>
-                    </ArticleRight>
-                    <ProgressBar progress={0.46} />
-                  </DiversityArticle>
-                  <DiversityArticle
-                    onClick={() => {
-                      setPageType({
-                        type: 'specific', data: {
-                          headline: "Headline 3",
-                          summary: ["Hello", "there", "this"]
-                        }
-                      })
-                    }}
-                  >
-                    <ArticleLeft>
-                      <ArticleLeftHeadline>
-                        Headline 3
-              </ArticleLeftHeadline>
-                    </ArticleLeft>
-                    <ArticleRight>
-                      <ArticleRightMain>
-                        32%
-                      </ArticleRightMain>
-                      <ArticleLeftSubTitle>
-                        similar
-                      </ArticleLeftSubTitle>
-                    </ArticleRight>
-                    <ProgressBar progress={0.32} />
-                  </DiversityArticle>
-                  <DiversityArticle
-                    onClick={() => {
-                      setPageType({
-                        type: 'specific', data: {
-                          headline: "Headline 4",
-                          summary: ["Hello", "there", "this"]
-                        }
-                      })
-                    }}
-                  >
-                    <ArticleLeft>
-                      <ArticleLeftHeadline>
-                        Headline 2
-              </ArticleLeftHeadline>
-                    </ArticleLeft>
-                    <ArticleRight>
-                      <ArticleRightMain>
-                        32%
-                      </ArticleRightMain>
-                      <ArticleLeftSubTitle>
-                        similar
-                      </ArticleLeftSubTitle>
-                    </ArticleRight>
+                      const article = currentPerspectives.articles.find(item => item.data.cluster_id == cluster.id);
 
-                  </DiversityArticle>
-                </DiversitySummary>
+                      if (article) {
+                        return (
+                          <DiversityArticle
+                            onClick={() => {
+                              setPageType({
+                                type: 'specific', data: {
+                                  headline: article.data.headline,
+                                  summary: article.data.summary
+                                }
+                              })
+                            }}
+                          >
+                            <ArticleLeft>
+                              <ArticleLeftHeadline>
+                                {article.data.headline}
+                              </ArticleLeftHeadline>
+                            </ArticleLeft>
+                            <ArticleRight>
+                              <ArticleRightMain>
+                                50%
+                              </ArticleRightMain>
+                              <ArticleLeftSubTitle>
+                                similar
+                              </ArticleLeftSubTitle>
+                            </ArticleRight>
+                          </DiversityArticle>
+                        )
+                      } else {
+                        return null
+                      }
 
+                    })}
+
+                  </DiversitySummary>
+                  : <Loader />}
               </>
               : pageType.type == "specific" ?
                 <SpecificPage>
@@ -657,111 +601,32 @@ const App = () => {
           : selectedTab == "second" ?
             <DiversitySummary>
               <Headline>Perspectives</Headline>
-              <DiversityArticle
-                onClick={() => {
-                  setPageType2({
-                    type: 'specific', data: {
-                      headline: "Headline 1",
-                      summary: ["Hello", "there", "this"]
-                    }
-                  })
-                }}
-              >
-                <ArticleLeft>
-                  <ArticleLeftHeadline>
-                    Perspective 1
-              </ArticleLeftHeadline>
 
-                </ArticleLeft>
-                <ArticleRight>
-                  <ArticleRightMain>
-                    4
-                  </ArticleRightMain>
-                  <ArticleLeftSubTitle>
-                    articles
-                  </ArticleLeftSubTitle>
-                </ArticleRight>
-                <ProgressBar progress={0.5} />
-              </DiversityArticle>
+              {currentPerspectives ?
+                <>
+                  {currentPerspectives.clusters.map((cluster, i) => {
+                    return (
+                      <DiversityArticle>
+                        <ArticleLeft>
+                          <ArticleLeftHeadline>
+                            Perspective {i + 1}
+                          </ArticleLeftHeadline>
 
-              <DiversityArticle
-                onClick={() => {
-                  setPageType2({
-                    type: 'specific', data: {
-                      headline: "Headline 2",
-                      summary: ["Hello", "there", "this"]
-                    }
-                  })
-                }}
-              >
-                <ArticleLeft>
-                  <ArticleLeftHeadline>
-                    Perspective 2
-              </ArticleLeftHeadline>
+                        </ArticleLeft>
+                        <ArticleRight>
+                          <ArticleRightMain>
+                            {cluster.data.numNodes}
+                          </ArticleRightMain>
+                          <ArticleLeftSubTitle>
+                            articles
+                        </ArticleLeftSubTitle>
+                        </ArticleRight>
+                      </DiversityArticle>
+                    )
+                  })}
+                </>
+                : null}
 
-                </ArticleLeft>
-                <ArticleRight>
-                  <ArticleRightMain>
-                    4
-                  </ArticleRightMain>
-                  <ArticleLeftSubTitle>
-                    articles
-                  </ArticleLeftSubTitle>
-                </ArticleRight>
-                <ProgressBar progress={0.46} />
-              </DiversityArticle>
-              <DiversityArticle
-                onClick={() => {
-                  setPageType2({
-                    type: 'specific', data: {
-                      headline: "Headline 3",
-                      summary: ["Hello", "there", "this"]
-                    }
-                  })
-                }}
-              >
-                <ArticleLeft>
-                  <ArticleLeftHeadline>
-                    Perspective 3
-              </ArticleLeftHeadline>
-
-                </ArticleLeft>
-                <ArticleRight>
-                  <ArticleRightMain>
-                    4
-                  </ArticleRightMain>
-                  <ArticleLeftSubTitle>
-                    articles
-                  </ArticleLeftSubTitle>
-                </ArticleRight>
-                <ProgressBar progress={0.32} />
-              </DiversityArticle>
-              <DiversityArticle
-                onClick={() => {
-                  setPageType2({
-                    type: 'specific', data: {
-                      headline: "Headline 4",
-                      summary: ["Hello", "there", "this"]
-                    }
-                  })
-                }}
-              >
-                <ArticleLeft>
-                  <ArticleLeftHeadline>
-                    Perspective 2
-                  </ArticleLeftHeadline>
-
-                </ArticleLeft>
-                <ArticleRight>
-                  <ArticleRightMain>
-                    4
-                  </ArticleRightMain>
-                  <ArticleLeftSubTitle>
-                    articles
-                  </ArticleLeftSubTitle>
-                </ArticleRight>
-
-              </DiversityArticle>
             </DiversitySummary>
 
             : null
@@ -894,13 +759,6 @@ const App = () => {
             }}
             onNodeMouseLeave={(e, node) => {
               setHoverInfo(null)
-            }}
-
-            onEdgeMouseEnter={(e, edge) => {
-              setHoverInfo({
-                title: "Edge Similarity",
-                summary: [edge.data.similarity]
-              })
             }}
           />
         </MainContent>

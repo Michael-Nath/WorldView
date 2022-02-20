@@ -23,6 +23,19 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
           console.log(tabs[0].url)
         });
 
+      fetch("http://54.219.124.53:5000/get-perspectives?url=" + tabs[0].url)
+        .then(res => res.json())
+        .then(data => {
+          const newData = {}
+          newData[tabs[0].url + "_perspectives"] = data;
+
+          console.log("Attempting to save PERSPECTIVES to local storage ...")
+          chrome.storage.sync.set(newData)
+
+          console.log("Success! PERSPECTIVE has been retrieved and saved to local storage.")
+          console.log(tabs[0].url)
+        });
+
 
     });
 
