@@ -6,18 +6,19 @@
 # @Last modified time: 2022-02-20T00:51:18-08:00
 
 
-def _set_cwd():
-    import os
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-_set_cwd()
+# def _set_cwd():
+#     import os
+#     abspath = os.path.abspath(__file__)
+#     dname = os.path.dirname(abspath)
+#     os.chdir(dname)
+# _set_cwd()
 
 from re import sub
 from nltk import collocations, pos_tag, corpus, word_tokenize
 from heapq import nlargest
 from nltk.corpus import stopwords
-from util import download_nltk_dependecy, _print
+from extraction.util import download_nltk_dependecy, _print
+# from util import download_nltk_dependecy
 _DEPS = ('stopwords', 'punkt', 'averaged_perceptron_tagger', 'vader_lexicon', 'wordnet')
 for d in _DEPS:
     download_nltk_dependecy(d)
@@ -108,6 +109,9 @@ def summarize_content(content: str) -> list:
                         sentence_scores[sent] += word_frequencies[word]
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
     return summary_sentences
+
+
+
 
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']

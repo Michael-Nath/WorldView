@@ -10,11 +10,11 @@ def _set_cwd():
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
-_set_cwd()
+# _set_cwd()
 
 # from backend import scraping, nlp
-import scraping, nlp
-from util import _print
+from extraction import scraping, nlp
+from extraction.util import _print
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
@@ -31,6 +31,10 @@ def CORE_EXECUTION(NODE_URL: str) -> dict:
 
     _print(f"{__file__}: SUCCESFULLY EXECUTED", 'LIGHTGREEN_EX')
     return ATTRIBUTES
+
+def SIMILARITY_HELPER(NODE_URL: str):
+    META_DATA = scraping._GET_CONTENT(NODE_URL)
+    return nlp.GET_CONTENT(META_DATA)
 
 """TEST"""
 # URL = "https://www.reuters.com/world/europe/shelling-breaks-out-east-ukraine-west-moscow-dispute-troop-moves-2022-02-17/"
