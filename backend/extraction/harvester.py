@@ -3,21 +3,25 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T00:51:19-08:00
 
-# def _set_cwd():
-#     import os
-#     abspath = os.path.abspath(__file__)
-#     dname = os.path.dirname(abspath)
-#     os.chdir(dname)
-# _set_cwd()
+# @Last modified time: 2022-02-20T05:09:54-08:00
 
-from backend.extraction.core_extraction import CORE_EXECUTION
-from backend.extraction.util import (safe_request, valid_getreq,
-                                     time_limit, TimeoutException, _print,
-                                     download_nltk_dependecy)
-# import extraction.core_extraction as SINGLE_EXTRACTION
-# from extraction.util import safe_request, check_validity
+def _set_cwd():
+    import os
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+_set_cwd()
+
+# from backend.extraction.core_extraction import CORE_EXECUTION
+# from backend.extraction.util import (safe_request, valid_getreq,
+#                                      time_limit, TimeoutException, _print,
+#                                      download_nltk_dependecy)
+from core_extraction import CORE_EXECUTION
+from util import (safe_request, valid_getreq,
+                  time_limit, TimeoutException, _print,
+                  download_nltk_dependecy)
+
 import numpy as np
 # import search_engines
 import requests
@@ -36,7 +40,6 @@ download_nltk_dependecy('omw-1.4')
 download_nltk_dependecy('punkt')
 from nltk.corpus import stopwords
 
-__file__ = 'harverster.py'
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
@@ -45,18 +48,24 @@ _ = """
 ########################################## HYPERPARAMETERS #########################################
 #################################################################################################"""
 # STD_THRESH = 0.3
-SEED_URL = "https://www.cnn.com/2022/02/19/health/fourth-covid-19-vaccine-dose-us/index.html"
-SEARCH_FORWARD = 5
+# SEED_URL = "https://www.nbcnews.com/news/world/ottawa-police-appear-end-protesters-hold-streets-canadas-parliament-rcna16974"
+SEARCH_FORWARD = 3
+
 TOP_N = 2
-TIMEOUT = 20
-SEED_TIMEOUT = TIMEOUT + 10
-SIMILARTY_THRESH = 0.7
 stop_words = set(stopwords.words('english'))
 
 # API_KEY = "AIzaSyBVnIpS431p2BOA-R6Pjz9gAprjg0A4Jp8"
 API_KEY = "AIzaSyAr4eiB6oqClTREPpU0okBzwUnfF53XiOA"
 CSE_ID = "fc0451f6e29dca5d4"
 TOTAL_SENTIMENTS = []
+
+# Harvesting
+depth = 0
+MAX_DEPTH = 1
+
+TIMEOUT = 20
+SEED_TIMEOUT = TIMEOUT + 10
+SIMILARTY_THRESH = 0.7
 
 class LemmaTokenizer:
     ignore_tokens = (',', '.', ';', ':', '"', '``', "''", '`')
@@ -108,7 +117,9 @@ def safe_meta_search(URL, TIMEOUT=TIMEOUT):
 def get_queries(SEED_URL, TOP_N=TOP_N):
     SEED_META_DATA = safe_meta_search(SEED_URL, TIMEOUT=SEED_TIMEOUT)
     if SEED_META_DATA is None:
-        raise KeyError("Couldn't find seed meta data")
+        _print("Couldn't find seed meta data", 'LIGHTRED_EX')
+        # raise KeyError("Couldn't find seed meta data")
+        return None
     search_queries = list(SEED_META_DATA['top_phrases'].keys())[:TOP_N]
     return search_queries
 
@@ -122,175 +133,178 @@ def google_search(search_term, my_api_key=API_KEY, my_cse_id=CSE_ID, **kwargs):
         _print(f"Exception: {e}", 'RED')
         return {}
 
-def configure_nx(meta_data: dict,
-                 percentile = None,
-                 top_n: int = None,
-                 hits: int = 2,
-                 include_self_loops: bool = False,
-                 include_isolates: bool = False,
-                 normalize_weights: bool = True,
-                 net_behaviour: bool = False,
-                 compress_edgedata: bool = True,
-                 weight_str: str = 'value',
-                 format: str = 'dataframe',
-                 draw: bool = False) -> [(pd.core.frame.DataFrame, pd.core.frame.DataFrame,
-                                          pd.core.frame.DataFrame, pd.core.frame.DataFrame,
-                                          pd.core.frame.DataFrame),
-                                         (nx.DiGraph, dict, list)]:
-    """Short summary.
-    Parameters
-    ----------
-    meta_data : dict
-        A dictionary with the node sizes and edges of the graph at hand.
-    percentile : Optional[float]
-        NOTE: Not recommended. Outliers in edge weights undermine the functionality of this feature.
-        The top `percentile`-th data is kept to reduce graph complexity.
-    top_n : Optional[int]
-        NOTE: This is recommended over `percentile` and `hits`.
-        The `top_n` edges to retain in the graph.
-    hits : Optional[int]
-        NOTE: Not recommended by extension: related to `percentile`.
-        The top `percentile`-th data is filtered, and again `hits` times to reduce graph complexity.
-    include_self_loops : bool
-        Whether self-loops should be includes in the final graph.
-    include_isolates : bool
-        Whether isolates (a node without any incoming/outgoing edges) should be included in the final graph.
-    normalize_weights : bool
-        NOTE: Many packages may perform this normalization as part of their core JavaScript functionality.
-        Whether node sizes should be normalized.
-    net_behaviour : bool
-        Whether only summed edge vector should be calculated and considered in the final graph.
-    compress_edgedata : bool
-        NOTE: Should always be `False` for DeepSea, and only be `True` for vis.js rendering.
-        Whether edge data should be compressed in mutated `meta_data`.
-    weight_str : str
-        The name of the weight string for VIS.JS purposes.
-    format : str
-        NOTE: Should always be dataframe for DeepSea, and only be "raw" for vis.js rendering.
-        Either "dataframe" or "raw".
-    draw : bool
-        NOTE: This is only for local validation purposes, no impact on DeepSea output.
-              Causes additional run-time processing due to local matplotlib figure generation.
-        Quick and dirty rendering. Whether the Python-generated networkx graph should be outputted to the console.
-    Returns
-    -------
-    [(pd.core.frame.DataFrame, pd.core.frame.DataFrame,
-                                         pd.core.frame.DataFrame, pd.core.frame.DataFrame,
-                                         pd.core.frame.DataFrame),
-                                        (nx.DiGraph, dict, list)]
-        If `format` := "dataframe", then five dataframes corresponding to the nodes, node sizes,
-        edges, loners, and self-loops are returned.
-        If `format` := "raw", then the networkx graph, the meta data, and a list of considered parameters
-        are returned.
-    """
-    _print('Configuring NX Object...')
+def norm_base(some_data, out_of_scope=False, up_scalar=1):
+    def is_a_number(thing):
+        return str(thing).replace('.', '').isdigit()
+    def get_xy_bounds(some_data):
+        x_max = max([iterable[0] for iterable in some_data])
+        x_min = min([iterable[0] for iterable in some_data])
+        y_max = max([iterable[1] for iterable in some_data])
+        y_min = min([iterable[1] for iterable in some_data])
+        return x_max, x_min, y_max, y_min
 
-    # Just for local testing.
-    considered_filters = {k: v for k, v in locals().copy().items() if not isinstance(v, pd.core.frame.DataFrame)}
+    def _list_norm(some_data, pre_maxima=None, pre_minima=None,
+                   pre_x_max=None, pre_y_max=None, pre_x_min=None, pre_y_min=None, up_scalar=1):
+        if len(some_data) <= 1:
+            raise ValueError('Iterable must have more than one element!')
+        if is_a_number(some_data[0]):
+            maxima = max(some_data) if pre_maxima is None else pre_maxima
+            minima = min(some_data) if pre_minima is None else pre_minima
+            some_data = [(val - minima) / (maxima - minima) for val in some_data]
+        elif type(some_data[0]) == list or type(some_data[0]) == tuple:
+            # Must be two dimensional
+            if len(some_data[0]) > 2:
+                raise ValueError('Two-dimension maximum supported only!')
+            if pre_x_max is None:
+                x_max, x_min, y_max, y_min = get_xy_bounds(some_data)
+            else:
+                x_max, x_min, y_max, y_min = pre_x_max, pre_x_min, pre_y_max, pre_y_min
+            some_data = [(up_scalar * (iterable[0] - x_min) / (x_max - x_min),
+                          up_scalar * (iterable[1] - y_min) / (y_max - y_min))
+                         for iterable in some_data]
+            return some_data
 
-    def remove_dupl_edges(G_func: [nx.Graph, nx.DiGraph]) -> [nx.Graph, nx.DiGraph]:
-        """Removes any duplicated edges in (u, v, w)/weighted networkx Graph. Not supposed to be here.
-        Parameters
-        ----------
-        G_func : [nx.Graph, nx.DiGraph]
-            The original networkx Graph.
-        Returns
-        -------
-        [nx.Graph, nx.DiGraph]
-            The fixed networkx Graph.
-        """
-        # REMOVE DUPLICATE EDGES
-        stripped_list = list(set([tuple(set(edge)) for edge in G_func.edges()]))
-        stripped_list = [(u, v, d) for u, v, d in G_func.edges(data=True) if (u, v) in stripped_list]
-        G_func.remove_edges_from([e for e in G.edges()])
-        G_func.add_edges_from(stripped_list)
-
-        return G_func
-
-    # def reject_outliers(data, m=2):
-    #     return data[abs(data - np.mean(data)) < m * np.std(data)]
-
-    # Get the data
-    edges, node_sizes = meta_data['edges'], meta_data['node_sizes']
-
-    # Normalizing node sizes
-    node_sizes = {k: v / max(node_sizes.values()) for k, v in node_sizes.items()} if normalize_weights else node_sizes
-
-    # Formatting node sizes
-    node_sizes = {k: {'size': v} for k, v in node_sizes.items()}
-
-    # Selectively show edges based on percentile, if speciified
-    G = nx.DiGraph()
-    G.add_weighted_edges_from(edges, weight_str)
-    if percentile is not None:
-        percentile = float(percentile)
-
-        weights_all = list([d[weight_str] for u, v, d in G.edges(data=True)])
-        cutoff = np.percentile([c for c in weights_all if c > 0], percentile)
-        _print('STATUS: Cuttoff is: ' + str(cutoff) + ' @ {} percentile'.format(percentile))
-        G_filt = nx.DiGraph()
-        G_filt.add_weighted_edges_from([(u, v, d) for u, v, d in G.edges(data=True) if d[weight_str] > cutoff],
-                                       weight_str)
-        G = G_filt.copy()
-    elif top_n is not None:
-        frequency_dict = {k: v[weight_str] for k, v in Counter(G.edges).items()}
-        # TEMP: Temporarily not removing any maximas or minimas, taken care by normalization
-        # # Removing some extremas
-        # for i in range(hits):
-        #     frequency = list(reject_outliers(np.array(list(frequency_dict.values())), m=1))
-        #     frequency_dict = {k: v for k, v in frequency_dict.items() if v in frequency}
-
-        frequency_dict = dict(sorted(frequency_dict.items(), key=lambda item: item[1], reverse=True))
-        frequency_dict = dict(list(frequency_dict.items())[:top_n])
-
-        # Add edges
-        G_filt = nx.DiGraph()
-        G_filt.add_weighted_edges_from([(*k, v) for k, v in frequency_dict.items()], weight_str)
-        G = G_filt.copy()
-
-    # TEMP: Right now, node colors are 1:1 with the nodes themselves, not based on another hierarchy
-    nx.set_node_attributes(G, dict(zip(G.nodes, G.nodes)), 'group')
-
-    # Removing duplicate edges if specified
-    G = remove_dupl_edges(G) if net_behaviour else G
-
-    # Calculating extra attributes
-    selfloops = list(nx.selfloop_edges(G, data=True))
-    _print(f'> Self-loops: {selfloops}')
-    meta_data['node_sizes'] = {node: size for node, size in meta_data['node_sizes'].items() if node in G.nodes}
-
-    # Remove from networkx graph if specified
-    G.remove_edges_from([(a, b) for a, b, c in selfloops]) if not include_self_loops else None
-    loners = list(nx.isolates(G))
-    _print(f'> Isolates: {loners}')
-    G.remove_edges_from(loners) if not include_isolates else None
-
-    if draw:
-        plt.figure(figsize=(10, 10))
-        nx.draw(G, nx.kamada_kawai_layout(G), with_labels=True)
-
-    # Add information to meta data
-    if format == 'raw':
-        meta_data['loners'] = loners
-        meta_data['selfloops'] = selfloops
-        edges = [(a, b, c[weight_str]) for a, b, c, in list(G.edges(data=True))
-                 ] if compress_edgedata else list(G.edges(data=True))
-        meta_data['edges'] = edges
-        meta_data['nodes'] = list(G.nodes)
-        return G, meta_data, considered_filters
+    if type(some_data) == dict:
+        first_value = list(some_data.values())[0]
+        if (type(first_value[0]) == list or type(first_value[0]) == tuple):  # list of lists
+            if(out_of_scope):
+                # Consider all coordinates in dictionary when determining bounds
+                _converted = list(chain.from_iterable(list(some_data.values())))
+                x_max, x_min, y_max, y_min = get_xy_bounds(_converted)
+                some_data = {k: _list_norm(v, pre_x_max=x_max, pre_y_max=y_max,
+                                           pre_x_min=x_min, pre_y_min=y_min, up_scalar=up_scalar)
+                             for k, v in some_data.items()}
+            else:
+                # Pairwise normalization
+                some_data = {k: _list_norm(v, up_scalar=up_scalar) for k, v in some_data.items()}
+        else:
+            _converted = list(some_data.values())
+            _converted = _list_norm(_converted, up_scalar=up_scalar)
+            some_data = {k: _converted[list(some_data.keys()).index(k)] for k, v in some_data.items()}
+    elif type(some_data) == list or type(some_data) == tuple:
+        some_data = _list_norm(some_data, up_scalar=up_scalar)
     else:
-        meta_data['loners'] = pd.DataFrame(loners, columns=['loners'])
-        meta_data['selfloops'] = pd.DataFrame([(a, b, c[weight_str]) for a, b, c in selfloops],
-                                              columns=['from', 'to', 'weight'])
-        edges = [(a, b, c[weight_str]) for a, b, c, in list(G.edges(data=True))]
-        meta_data['edges'] = pd.DataFrame(edges, columns=['from', 'to', 'weight'])
-        meta_data['nodes'] = pd.DataFrame(list(G.nodes), columns=['node'])
-        meta_data['node_sizes'] = pd.DataFrame(meta_data['node_sizes'],
-                                               index=[0]).T.reset_index().rename(columns={'index': 'node',
-                                                                                          0: 'node_size'})
-        return (meta_data['nodes'], meta_data['node_sizes'], meta_data['edges'],
-                meta_data['loners'], meta_data['selfloops'])
+        raise TypeError('Data type not supported for normalization!')
+    return some_data
 
+def package_information(node_content):
+    nodes_relation: dict = {'n-' + str(i): list(node_content.keys())[i]
+                            for i in range(len(node_content))}
+
+    def get_edge_list(node_content, nodes_relation):
+        all_contents = [d['content'] for d in node_content.values()]
+        out = determine_similarity_tfidf(list(all_contents))
+        df_edges = pd.DataFrame(out, columns=nodes_relation)
+        df_edges.index = ['n-' + str(t) for t in df_edges.index]
+        df_edges.values[[np.arange(len(df_edges))]*2] = None
+        df_edges = df_edges.stack().reset_index()
+        df_edges.columns = ['source', 'target', 'w']
+        df_edges['w'] = df_edges['w'].round(4)
+        df_edges['source'] = df_edges['source'].astype(str)
+        df_edges['target'] = df_edges['target'].astype(str)
+        df_edges['w'] = df_edges['w'].astype(np.number)
+
+        edge_list_flattened = list(df_edges.T.to_dict().values())
+        i = 0
+        for d in edge_list_flattened:
+            d['id'] = 'e-' + str(i)
+            d['data'] = {'similarity': d['w']}
+            del d['w']
+            i += 1
+
+        return df_edges, edge_list_flattened
+
+    def get_node_list(node_content, nodes_relation):
+        # Node attributes
+        rev_nodes_relation = {v: k for k, v in nodes_relation.items()}
+        i = 0
+        node_attributes = []
+        for k, v in node_content.items():
+            result = {}
+            result['id'] = rev_nodes_relation.get(k)
+            result['type'] = 'article'
+            result['data'] = v
+            i += 1
+            node_attributes.append(result)
+        return node_attributes
+
+    df_edges, edge_list = get_edge_list(node_content, nodes_relation)
+    node_list = get_node_list(node_content, nodes_relation)
+
+    return df_edges, edge_list, node_list
+
+def discover_relevant_articles(SEED_URL, urls_accessed, titles_accessed, node_content,
+                               depth=0, MAX_DEPTH=MAX_DEPTH,
+                               SEARCH_FORWARD=SEARCH_FORWARD):
+    search_queries = get_queries(SEED_URL)
+    if search_queries is None:
+        return urls_accessed, titles_accessed, node_content
+    _print(f"DEPTH: {depth}", 'LIGHTMAGENTA_EX')
+    for query in search_queries:
+        _print(f"CHILD: {query}", 'LIGHTWHITE_EX')
+        # Search google for similar articles
+        results = google_search(query, num=SEARCH_FORWARD)
+        if (results == {}):
+            continue
+
+        # Get meta data for each link for inputted keywords
+        for res in results:
+            # link = res['link']
+            link = res['pagemap']['metatags'][0].get('og:url')
+            link = link if link is not None else "COULD NOT FIND FILE"
+            # link = sanitize_url(link)
+            if link in urls_accessed:
+                continue
+            title = res['title']
+            _print(f"> Result Scan: {link}", 'WHITE')
+
+            # If the candidate article is not historically_similar, find meta data
+            # and add to graph
+            if not historically_similar(titles_accessed, title):
+                # Get Meta Data
+                child_meta_data = safe_meta_search(link)
+                if child_meta_data is not None:
+                    child_meta_data['depth'] = depth
+                    titles_accessed.append(title)
+                    urls_accessed.append(link)
+                    _print("LINK IS BEING ADDED!!!", 'CYAN')
+                    node_content[link] = child_meta_data
+                    _print(f'\nDEBUG: {len(node_content)} number of entries\n', 'CYAN')
+                    if (depth < MAX_DEPTH):
+                        (urls_accessed,
+                         titles_accessed,
+                         node_content) = discover_relevant_articles(
+                             SEED_URL = link,
+                             urls_accessed = urls_accessed,
+                             titles_accessed = titles_accessed,
+                             node_content=node_content,
+                             depth = depth + 1,
+                             MAX_DEPTH = MAX_DEPTH,
+                             SEARCH_FORWARD = SEARCH_FORWARD)
+    return urls_accessed, titles_accessed, node_content
+
+def convert_to_graph(df_edges):
+    G = nx.from_pandas_edgelist(df_edges)
+    return G
+
+def get_coordinates(G, layout=nx.kamada_kawai_layout):
+    def min_max_norm(vector):
+        num = [e - min(vector) for e in vector]
+        den = max(vector) - min(vector)
+        return num/den
+
+    coord = layout(G)
+    x_coordinates = [e[0] for e in list(coord.values())]
+    y_coordinates = [e[1] for e in list(coord.values())]
+    pairwise = list(zip(x_coordinates, y_coordinates))
+
+    x_norm = [i[0]*100 for i in norm_base(pairwise)]
+    y_norm = [i[1]*100 for i in norm_base(pairwise)]
+    # plt.scatter(x_coordinates, y_coordinates)
+    # plt.scatter(x_norm, y_norm)
+    ret = dict(zip(coord.keys(), list(zip(x_norm, y_norm))))
+    ret = {k: list((v[0], v[1])) for k, v in ret.items()}
+    return ret, coord
 
 _ = """
 ####################################################################################################
@@ -310,74 +324,54 @@ _ = """
 ############################################# EXECUTION ############################################
 #################################################################################################"""
 
-search_queries = get_queries(SEED_URL)
+""" DON'T TOUCH FROM THIS POINT """
 
-urls_accessed = []
-titles_accessed = []
-node_content = {}
+def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEARCH_FORWARD):
+    urls_accessed = []
+    titles_accessed = []
+    node_content = {}
 
-for query in search_queries:
-    _print(f"CHILD: {query}", 'LIGHTWHITE_EX')
-    # Search google for similar articles
-    results = google_search(query, num=SEARCH_FORWARD)
-    if (results == {}):
-        continue
+    urls_accessed, titles_accessed, node_content = discover_relevant_articles(
+        SEED_URL, urls_accessed, titles_accessed, node_content,
+        depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEARCH_FORWARD)
+    _print('\n\nFinished Discovery')
 
-    # Get meta data for each link for inputted keywords
-    for res in results:
-        # link = res['link']
-        link = res['pagemap']['metatags'][0].get('og:url')
-        link = link if link is not None else "COULD NOT FIND FILE"
-        title = res['title']
-        _print(f"> Result Scan: {link}", 'WHITE')
+    # import json
+    # with open('lots_of_meta_data_AGAIN.json', 'w', encoding='utf-8') as f:
+    #     json.dump(node_content, f, indent=4, sort_keys=True)
 
-        # If the candidate article is not historically_similar, find meta data
-        # and add to graph
-        if not historically_similar(titles_accessed, title):
-            # Get Meta Data
-            child_meta_data = safe_meta_search(link)
-            if child_meta_data is not None:
-                titles_accessed.append(title)
-                urls_accessed.append(link)
-                node_content[link] = child_meta_data
+    df_edges, edge_list, node_list = package_information(node_content)
+    _print('\n\nFinished packaging edge and node lists')
 
-nodes_relation: dict = {str(i): list(node_content.keys())[i] for i in range(len(node_content))}
+    # TODO: Depth to JSON
+    # TODO: People and ORGS and Location as top words
 
-def format_as_dataframes(node_content, nodes_relation):
-    # EDGELIST: to/from/weights
-    all_contents = [d['content'] for d in node_content.values()]
-    out = determine_similarity_tfidf(list(all_contents))
-    df_edges = pd.DataFrame(out, columns=nodes_relation)
-    df.values[[np.arange(len(df_edges))]*2] = np.nan
-    df_edges = df_edges.stack().reset_index()
-    df_edges.columns = ['to', 'from', 'weight']
-    df_edges['weight'] = df_edges['weight'].round(4)
+    G = convert_to_graph(df_edges)
 
-    # Node attributes
-    nodes = pd.DataFrame(nodes_relation.)
+    coordinates, nx_layout = get_coordinates(G)
 
-    return df
+    # Add coordinates to nodelist
+    for node in node_list:
+        id = node['id']
+        node['position'] = coordinates.get(id)
 
-df = format_as_dataframe(node_content, nodes_relation)
+    _print('\n\nFinalized edge and node lists')
 
-temp = node_content['https://www.nytimes.com/2022/02/17/us/fourth-dose-covid-vaccine.html']
-list(temp.keys())
-temp['content_summary']
+    # fig = plt.figure(figsize=(12, 8))
+    # nx.draw(G, nx_layout)
+    # _ = nx.draw_networkx_edge_labels(G, pos=nx_layout)
+    # plt.show()
 
-def convert_to_graph(df):
-    # Source, target
-    G = nx.from_pandas_edgelist(df, 'to', 'from', ['weight'])
-    # JSON file
-    return G
+    return edge_list, node_list, G
 
-G = convert_to_graph(df)
-
-layout = nx.spring_layout(G)
-fig = plt.figure(figsize=(12, 8))
-nx.draw(G, layout)
-_ = nx.draw_networkx_edge_labels(G, pos=layout)
-plt.show()
-
-plt.hist(TOTAL_SENTIMENTS, bins=20)
+# # FUNCTION: Cluster Graph
+# cluster_dict = some_func(node_list)
+#
+# cluster_nodes = list(cluster_dict.keys())
+# cluster_edges = []
+# for n in cluster_nodes:
+#     cluster_edges.append(n)
+#
+# edge_list, node_list, G = MASTER_EXECUTION(SEED_URL)
 
 # EOF
