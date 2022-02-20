@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T16:43:29-08:00
+# @Last modified time: 2022-02-20T00:51:18-08:00
 
 
 # def _set_cwd():
@@ -17,7 +17,7 @@ from re import sub
 from nltk import collocations, pos_tag, corpus, word_tokenize
 from heapq import nlargest
 from nltk.corpus import stopwords
-from extraction.util import download_nltk_dependecy
+from extraction.util import download_nltk_dependecy, _print
 # from util import download_nltk_dependecy
 _DEPS = ('stopwords', 'punkt', 'averaged_perceptron_tagger', 'vader_lexicon', 'wordnet')
 for d in _DEPS:
@@ -33,7 +33,7 @@ except OSError:
     spacy.cli.download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
 
-print(f"{__file__}: DEPENDENCIES INSTALLED")
+_print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
 _ = """
 ####################################################################################################
@@ -66,12 +66,12 @@ def kw_frequency(word_list: list) -> dict:
 def get_top_words(selection: str) -> dict:
     doc = nlp(selection)
     entities = [{'word': X.text, 'type': X.label_} for X in doc.ents]
-    num_tags = [f"entity_{i+1}" for i in range(len(doc.ents))]
-    return dict(zip(num_tags, entities))
+    # num_tags = [f"entity_{i+1}" for i in range(len(doc.ents))]
+    return entities
 
-def get_pos_tags(word_list: list) -> dict:
-    output = dict(pos_tag(word_list))
-    return output
+# def get_pos_tags(word_list: list) -> dict:
+#     output = dict(pos_tag(word_list))
+#     return output
 
 def get_sentiment(text_selection) -> dict:
     sia = SentimentIntensityAnalyzer()
@@ -80,8 +80,7 @@ def get_sentiment(text_selection) -> dict:
 def get_top_phrases(word_list: list, LIMIT: int = 100, THRESH: int = 1) -> dict:
     finder = collocations.TrigramCollocationFinder.from_words(word_list)
     filt = dict([e for e in finder.ngram_fd.most_common(LIMIT) if e[1] > THRESH])
-    key_iter = list(filt.keys())
-    return  {f"phrase_{k_i+1}": {', '.join(key_iter[k_i]): filt[key_iter[k_i]]} for k_i in range(len(key_iter))}
+    return  {', '.join(k): v for k, v in filt.items()}
 
 def summarize_content(content: str) -> list:
     # get sentences
@@ -129,17 +128,16 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     top_words = get_top_words(_content)
     top_phrases = get_top_phrases(all_clean_words)
     uniq_clean_words = list(set(all_clean_words))
-    pos_tags = get_pos_tags(uniq_clean_words)
     top_words = [{"word": x["word"], "type": x["type"]} for x in top_words.values() if x["type"] in ["GPE", "ORG", "PERSON"]]
     JSON_OBJECT = {'content_sentiment': content_sentiment,
                    'content_summary': content_summary,
                    'headline_sentiment': headline_sentiment,
-                   'clean_words': all_clean_words,
+                   # 'clean_words': all_clean_words,
                    'keyword_frequency': kw_freq,
                    'top_words': top_words,
-                   'top_phrases': top_phrases,
-                   'unique_words': uniq_clean_words,
-                   'parts_of_speech': pos_tags}
+                   'top_phrases': top_phrases}
+                   # 'unique_words': uniq_clean_words}
+                   # 'parts_of_speech': pos_tags}
 
     URL_META_DATA.update(JSON_OBJECT)
 

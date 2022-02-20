@@ -21,6 +21,7 @@ class Article(Resource):
             "headline_sentiment": attributes["headline_sentiment"],
             "content_sentiment": attributes["content_sentiment"],
             "top_words": attributes["top_words"],
+            "top_phrases": attributes["top_phrases"],
             "content_summary": attributes["content_summary"]
         }
         return payload
