@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: extracontent.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T15:04:22-08:00
+# @Last modified time: 2022-02-19T18:53:55-08:00
 
 # NOTE: Do not run this file. It's purpose is to track helpful snippets.
 
@@ -98,6 +98,15 @@
 # from trafilatura import fetch_url, extract
 # def get_content(URL):
 #     return extract(fetch_url(URL))
+}
+
+"""HARVESTING"""
+{
+# from search_engine_parser import GoogleSearch
+# import nest_asyncio
+# nest_asyncio.apply()
+# import pprint
+# from search_engines import google_search
 }
 
 """EOF"""

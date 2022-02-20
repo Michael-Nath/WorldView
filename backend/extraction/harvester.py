@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T17:27:26-08:00
+# @Last modified time: 2022-02-19T19:44:09-08:00
 
 # def _set_cwd():
 #     import os
@@ -12,52 +12,60 @@
 #     os.chdir(dname)
 # _set_cwd()
 
-from backend.extraction.core_extraction import CORE_EXECUTION as GET_META_DATA
+from backend.extraction.core_extraction import CORE_EXECUTION
 from backend.extraction.util import safe_request, valid_getreq
 # import extraction.core_extraction as SINGLE_EXTRACTION
 # from extraction.util import safe_request, check_validity
 import numpy as np
 # import search_engines
-# from search_engines import google_search
 import requests
-# from googleapiclient.discovery import build
-from search_engine_parser import GoogleSearch
-import nest_asyncio
-nest_asyncio.apply()
-# import pprint
+from googleapiclient.discovery import build
+
 
 _ = """
 ####################################################################################################
 ########################################## HYPERPARAMETERS #########################################
 #################################################################################################"""
-STD_THRESH = 0.3
-SEED_URL = "https://www.foxnews.com/sports/penn-lia-thomas-yale-iszac-henig-ivy-championships-100-free"
+# STD_THRESH = 0.3
+SEED_URL = "https://www.cnn.com/2022/02/19/health/fourth-covid-19-vaccine-dose-us/index.html"
+SEARCH_FORWARD = 5
+
+my_api_key = "AIzaSyBVnIpS431p2BOA-R6Pjz9gAprjg0A4Jp8"
+my_cse_id = "fc0451f6e29dca5d4"
 
 _ = """
 ####################################################################################################
 ############################################ DEFINITIONS ###########################################
 #################################################################################################"""
 
-def google(query):
-    search_args = (query, 1)
-    gsearch = GoogleSearch()
-    gresults = gsearch.search(*search_args)
-    return gresults['links']
+def safe_meta_search(URL):
+    META_DATA = None
+    try:
+        META_DATA = CORE_EXECUTION(URL)
+    except:
+        pass
+    return META_DATA
 
-SEED_META_DATA = GET_META_DATA(SEED_URL)
+def google_search(search_term, my_api_key, my_cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=my_api_key)
+    try:
+        res = service.cse().list(q=search_term, cx=my_cse_id, **kwargs).execute()
+        return res['items']
+    except:
+        return {}
 
-SEED_META_DATA['top_phrases']
+SEED_META_DATA = safe_meta_search(SEED_URL)
+headline = SEED_META_DATA['headline']
+search_queries = list(SEED_META_DATA['top_phrases'].keys())
 
-query = SEED_META_DATA['headline']
-search_args = (query, 1)
-gsearch = GoogleSearch()
-gresults = gsearch.search(*search_args)
-gresults.results
-
-google(SEED_META_DATA['headline'])
-
-# url = google_search.get_search_url(SEED_META_DATA['headline'])
-
-
+for query in search_queries:
+    print(f"CHILD: {query}")
+    results = google_search(query, my_api_key, my_cse_id, num=SEARCH_FORWARD)
+    if (results == {}):
+        continue
+    for res in results:
+        print(f"> Result Scan: {res}")
+        child_url = res['link']
+        child_meta_data = safe_meta_search(child_url)
 
 # EOF
