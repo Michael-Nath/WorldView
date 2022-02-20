@@ -94,18 +94,18 @@ const ArticleNode = ({ data }) => {
         </Headline>
         <Sentiment>
           <SentimentBar>
-            <PositiveSentiment value={data.sentiment.pos} />
-            <NegativeSentiment value={data.sentiment.neg} />
-            <NeutralSentiment value={data.sentiment.neu} />
+            <PositiveSentiment value={data.content_sentiment.pos} />
+            <NegativeSentiment value={data.content_sentiment.neg} />
+            <NeutralSentiment value={data.content_sentiment.neu} />
           </SentimentBar>
         </Sentiment>
-        <Keywords>
+        {/* <Keywords>
           {data.keywords.map(word => {
             return (
               <Keyword>{word}</Keyword>
             )
           })}
-        </Keywords>
+        </Keywords> */}
 
       </Container>
 

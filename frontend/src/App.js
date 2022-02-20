@@ -193,6 +193,17 @@ const Keywords = styled.div`
   gap: 6px;
 `
 
+const PluginKeyword = styled.div`
+border-radius: 6px;
+background: #37383d;
+padding: 5px;
+font-size: 10px;
+color: white;
+flex: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+`
 
 const Keyword = styled.div`
   border-radius: 6px;
@@ -299,151 +310,12 @@ const ArticleRightMain = styled.div`
   align-items: center;
   justify-content: center;
 `
-const w = Math.random() * 2 * Math.PI;
-const x = Math.random() * 2 * Math.PI;
-const y = Math.random() * 2 * Math.PI;
-const z = Math.random() * 2 * Math.PI;
-
-const clusters = [
-  {
-    id: '1', type: 'main', data: {
-      label: 'Perspectives'
-    },
-    position: { x: 358, y: 323 }
-  },
-  {
-    id: '2', type: 'cluster', data: {
-      sentiment: {
-        pos: 0.7,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 358 + (Math.cos(x) * 300), y: 323 + (Math.sin(x) * 300) }
-
-  },
-  {
-    id: '3', type: 'cluster', data: {
-      sentiment: {
-        pos: 0.7,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 358 + (Math.cos(y) * 300), y: 323 + (Math.sin(y) * 300) }
-  },
-  {
-    id: '4', type: 'cluster', data: {
-      sentiment: {
-        pos: 1.1,
-        neg: 0.2,
-        neu: 0.1
-      },
-      numNodes: 5,
-      degree: 3,
-      keywords: ["Test", "hey", "lol"]
-    },
-    position: { x: 358 + (Math.cos(z) * 300), y: 323 + (Math.sin(z) * 300) }
-  },
-  {
-    id: 'ec1-2', source: '1', target: '2'
-  },
-  {
-    id: 'ec1-3', source: '1', target: '3'
-  },
-  {
-    id: 'ec1-4', source: '1', target: '4'
-  }
-];
-
-const articles = [
-  {
-    id: '1', type: 'article', data: {
-      url: "http://google.com",
-      headline: "Headline 1",
-      summary: ["hello there", "this is great"],
-      keywords: ["Top", "Low"],
-      cluster_id: "2",
-      sentiment: {
-        pos: 1.1,
-        neg: 0.2,
-        neu: 0.1
-      },
-    },
-    position: { x: 200, y: 200 }
-  },
-  {
-    id: '2', type: 'article', data: {
-      url: "http://bing.com",
-      headline: "Headline 2",
-      summary: ["hello there", "this is great"],
-      keywords: ["Top", "Low", "Amazon", "Jeff Bezos"],
-      cluster_id: "2",
-      sentiment: {
-        pos: 1.1,
-        neg: 0.2,
-        neu: 0.1
-      },
-    },
-    position: { x: 250, y: 250 }
-  },
-  {
-    id: '3', type: 'article', data: {
-      url: "http://aol.com",
-      headline: "Headline 3",
-      summary: ["hello there", "this is great"],
-      keywords: ["Top", "Low"],
-      cluster_id: "2",
-      sentiment: {
-        pos: 1.1,
-        neg: 0.2,
-        neu: 0.1
-      },
-    },
-    position: { x: 350, y: 350 }
-  },
-  {
-    id: '4', type: 'article', data: {
-      url: "http://yahoo.com",
-      headline: "Headline 4",
-      summary: ["hello there", "this is great"],
-      keywords: ["Top", "Low"],
-      cluster_id: "2",
-      sentiment: {
-        pos: 1.1,
-        neg: 0.2,
-        neu: 0.1
-      },
-    },
-    position: { x: 100, y: 100 }
-  },
-  {
-    id: 'e1-2', type: 'custom', source: '1', target: '2', label: 0.5, data: {
-      similarity: 0.5
-    }
-  },
-  {
-    id: 'e1-3', type: 'custom', source: '1', target: '3', label: 0.4, data: {
-      similarity: 0.7
-    }
-  }
-];
 
 const App = () => {
 
   const [loadState, setLoadState] = useState("loading");
   const [selectedTab, setSelectedTab] = useState("first");
   const [pageType, setPageType] = useState({
-    type: "normal",
-    data: null
-  })
-  const [pageType2, setPageType2] = useState({
     type: "normal",
     data: null
   })
@@ -537,7 +409,7 @@ const App = () => {
                   <Keywords>
                     {currentArticleInfo.top_words.slice(0, 4).map((word) => {
                       return (
-                        <Keyword>{word.word}</Keyword>
+                        <PluginKeyword>{word.word}</PluginKeyword>
                       )
                     })}
                   </Keywords>
@@ -737,8 +609,8 @@ const App = () => {
 
         <MainContent>
           <ReactFlow
-            elements={dashboardView.view == "cluster" ? clusters :
-              [...articles.filter(article => article.data && article.data.cluster_id == dashboardView.data.cluster_id), ...articles.filter(article => article.source)]
+            elements={dashboardView.view == "cluster" ? currentPerspectives.clusters :
+              [...currentPerspectives.articles.filter(article => article.data && article.data.cluster_id == dashboardView.data.cluster_id), ...articles.filter(article => article.source)]
             }
             edgeTypes={{ custom: CustomEdge }}
             nodeTypes={{ cluster: ClusterNode, main: MainNode, article: ArticleNode }}
@@ -763,7 +635,7 @@ const App = () => {
               if (node.type == 'article') {
                 setHoverInfo({
                   title: node.data.headline,
-                  summary: node.data.summary
+                  summary: node.data.content_summary
                 })
               }
             }}
