@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: scraping_defs.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T19:45:41-08:00
+# @Last modified time: 2022-02-20T00:27:52-08:00
 # @Description: Scrapes the headers and text body from all the files.
 #               Most basic, source information needed. No abstraction.
 
@@ -16,10 +16,10 @@
 
 import requests
 from itertools import chain
-from util import safe_request
+from util import safe_request, _print
 import urllib.parse
 
-print(f"{__file__}: DEPENDENCIES INSTALLED")
+_print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
 _ = """
 ####################################################################################################
@@ -34,7 +34,8 @@ _ = """
 ############################################ DEFINTIONS ############################################
 #################################################################################################"""
 
-URL = "https://news.yahoo.com/putin-may-launch-invasion-of-ukraine-in-donbas-region-analysts-say-230334521.html?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAJWUdlVJYte_fqKUCN8sXeSawpxNrgwa7k43-xTUHphQ-H6rpph6kJB_Ayww4JIW06pwZuQniqbz65rivtY0u4221xC2_GQLPMjRG6Ku2m78rzM3ol-qQ1LMjdB0Zjs23AjO_wDIQ5Si7Gq-s8-rcYMo6RqEcEuUElItj9KfGgyD"
+# URL = "https://www.latimes.com/projects/california-coronavirus-cases-tracking-outbreak/covid-19-vaccines-distribution/"
+# requests.get(URL)
 
 def _GET_CONTENT(URL: str) -> dict:
     response = safe_request(URL, API_TOKEN=API_TOKEN)
@@ -42,15 +43,16 @@ def _GET_CONTENT(URL: str) -> dict:
     if "objects" not in information.keys():
         return {}
     information = information['objects'][0]
+    _print(information, 'CYAN')
     _content = information['text']
     _content = '\n'.join(list(chain.from_iterable([l.split(". ") for l in _content.split('\n')])))
 
     return {'url': URL,
             'headline': information['title'],
-            'author': information['author'],
-            'date': information['date'],
+            'author': information.get('author'),
+            'date': information.get('date'),
             'content': _content}
 
-response = safe_request(URL, API_TOKEN=API_TOKEN)
-response.json()
+# response = safe_request(URL, API_TOKEN=API_TOKEN)
+# response.json()
 # EOF
