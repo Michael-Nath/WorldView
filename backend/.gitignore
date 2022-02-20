@@ -1,5 +1,4 @@
 # Exclude virtual environment
-treehacks
+extraction/extraction_env
 # Exclude ref text
 /ref
-.gitignore

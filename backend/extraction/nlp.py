@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-19T15:41:45-08:00
+# @Last modified time: 2022-02-19T15:57:14-08:00
 
 
 def _set_cwd():
@@ -22,7 +22,6 @@ for d in _DEPS:
 from nltk.tokenize import word_tokenize
 import string
 from collections import Counter
-import numpy as np
 from nltk.sentiment import SentimentIntensityAnalyzer
 import spacy
 try:
