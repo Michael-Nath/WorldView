@@ -16,13 +16,7 @@
 
 import requests
 from itertools import chain
-<<<<<<< HEAD
-from extraction.util import safe_request
-# from util import safe_request
-=======
-from util import safe_request, _print
-import urllib.parse
->>>>>>> da4c6172c98e706ce3198ae23993d3cf2ae653d7
+from extraction.util import safe_request, _print
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 

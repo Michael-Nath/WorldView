@@ -12,14 +12,9 @@ def _set_cwd():
     os.chdir(dname)
 # _set_cwd()
 
-<<<<<<< HEAD
-# import scraping, nlp
-from extraction import scraping, nlp
-=======
 # from backend import scraping, nlp
-import scraping, nlp
-from util import _print
->>>>>>> da4c6172c98e706ce3198ae23993d3cf2ae653d7
+from extraction import scraping, nlp
+from extraction.util import _print
 
 _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 

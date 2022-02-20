@@ -110,12 +110,6 @@ def summarize_content(content: str) -> list:
     summary_sentences = nlargest(7, sentence_scores, key=sentence_scores.get)
     return summary_sentences
 
-def GET_CONTENT(URL_META_DATA: dict):
-    _content = URL_META_DATA['content']
-    all_clean_words = get_clean_words(_content, uniq = False)
-    return all_clean_words
-
-
 def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     _content = URL_META_DATA['content']
     _headline = URL_META_DATA['headline']
@@ -127,8 +121,9 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     kw_freq = kw_frequency(all_clean_words)
     top_words = get_top_words(_content)
     top_phrases = get_top_phrases(all_clean_words)
-    uniq_clean_words = list(set(all_clean_words))
-    top_words = [{"word": x["word"], "type": x["type"]} for x in top_words.values() if x["type"] in ["GPE", "ORG", "PERSON"]]
+    # uniq_clean_words = list(set(all_clean_words))
+    # pos_tags = get_pos_tags(uniq_clean_words)
+
     JSON_OBJECT = {'content_sentiment': content_sentiment,
                    'content_summary': content_summary,
                    'headline_sentiment': headline_sentiment,

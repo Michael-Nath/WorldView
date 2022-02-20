@@ -81,6 +81,6 @@ api.add_resource(Perspectives, "/get-perspectives")
 api.add_resource(Hello, "/")
 
 if __name__ == '__main__':
-    host = "0.0.0.0"
-    # host = None
+    # host = "0.0.0.0"
+    host = None
     app.run(debug=True, host=host)
