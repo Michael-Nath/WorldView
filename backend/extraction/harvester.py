@@ -3,14 +3,19 @@
 # @Email:  shounak@stanford.edu
 # @Filename: harvester.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T05:21:42-08:00
+# @Last modified time: 2022-02-20T21:18:53-08:00
 
 def _set_cwd():
     import os
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
-_set_cwd()
+# _set_cwd()
+# TODO: Uncomment
+
+# os.getcwd()
+import os
+os.chdir('/Users/shounak/Documents/GitHub/WorldView/backend/extraction')
 
 # from backend.extraction.core_extraction import CORE_EXECUTION
 # from backend.extraction.util import (safe_request, valid_getreq,
@@ -21,13 +26,14 @@ from util import (safe_request, valid_getreq,
                   time_limit, TimeoutException, _print,
                   download_nltk_dependecy)
 import numpy as np
-# import search_engines
+from cluster_articles import cluster_with_kprotoype
 import requests
 from googleapiclient.discovery import build
 from difflib import SequenceMatcher
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
+import json
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -37,10 +43,12 @@ import nltk
 download_nltk_dependecy('omw-1.4')
 download_nltk_dependecy('punkt')
 from nltk.corpus import stopwords
+import asyncio
+dir(asyncio)
 
 # __file__ = 'harverster.py'
 
-_print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
+# _print(f"{__file__}: DEPENDENCIES INSTALLED", 'LIGHTBLUE_EX')
 
 _ = """
 ####################################################################################################
@@ -53,12 +61,13 @@ TOP_N = 2
 stop_words = set(stopwords.words('english'))
 
 # API_KEY = "AIzaSyBVnIpS431p2BOA-R6Pjz9gAprjg0A4Jp8"
-API_KEY = "AIzaSyAr4eiB6oqClTREPpU0okBzwUnfF53XiOA"
+API_KEY = "AIzaSyAlx1qWSsD1m7-Tqxa2N_lwmV1IjliO7GQ"
 CSE_ID = "fc0451f6e29dca5d4"
 TOTAL_SENTIMENTS = []
 
 # Harvesting
 depth = 0
+# NOTE: Below should be at least two
 MAX_DEPTH = 1
 TIMEOUT = 20
 SEED_TIMEOUT = TIMEOUT + 10
@@ -228,7 +237,7 @@ def package_information(node_content):
     df_edges, edge_list = get_edge_list(node_content, nodes_relation)
     node_list = get_node_list(node_content, nodes_relation)
 
-    return df_edges, edge_list, node_list
+    return df_edges, edge_list, node_list, nodes_relation
 
 def discover_relevant_articles(SEED_URL, urls_accessed, titles_accessed, node_content,
                                depth=0, MAX_DEPTH=MAX_DEPTH,
@@ -282,25 +291,34 @@ def discover_relevant_articles(SEED_URL, urls_accessed, titles_accessed, node_co
 
 def convert_to_graph(df_edges):
     G = nx.from_pandas_edgelist(df_edges)
+    _print("BEFORE: " + str(len(G.edges)))
+    def remove_dupl_edges(G_func):
+        # REMOVE DUPLICATE EDGES
+        for u, v in G_func.edges:
+            if (v, u) in G_func.edges:
+                G_func.remove_edge(u, v)
+        # stripped_list = [(u, v, d) for u, v, d in G_func.edges(data=True) if (u, v) in stripped_list]
+        # G_func.remove_edges_from([e for e in G.edges()])
+        # G_func.add_edges_from(stripped_list)
+        return G_func
+
+    # G = remove_dupl_edges(G)
+    _print("AFTER: " + str(len(G.edges)))
     return G
 
 def get_coordinates(G, layout=nx.kamada_kawai_layout):
-    def min_max_norm(vector):
-        num = [e - min(vector) for e in vector]
-        den = max(vector) - min(vector)
-        return num/den
-
     coord = layout(G)
     x_coordinates = [e[0] for e in list(coord.values())]
     y_coordinates = [e[1] for e in list(coord.values())]
     pairwise = list(zip(x_coordinates, y_coordinates))
 
-    x_norm = [i[0]*100 for i in norm_base(pairwise)]
-    y_norm = [i[1]*100 for i in norm_base(pairwise)]
+    x_norm = [i[0] * 1000 for i in norm_base(pairwise)]
+    y_norm = [i[1] * 667 for i in norm_base(pairwise)]
     # plt.scatter(x_coordinates, y_coordinates)
     # plt.scatter(x_norm, y_norm)
     ret = dict(zip(coord.keys(), list(zip(x_norm, y_norm))))
-    ret = {k: list((v[0], v[1])) for k, v in ret.items()}
+    ret = {k: {'x': v[0], 'y': v[1]} for k, v in ret.items()}
+
     return ret, coord
 
 _ = """
@@ -316,13 +334,6 @@ def determine_similarity_tfidf(documents):
     cosine_similarities = linear_kernel(doc_vectors, doc_vectors)
     return cosine_similarities
 
-_ = """
-####################################################################################################
-############################################# EXECUTION ############################################
-#################################################################################################"""
-
-""" DON'T TOUCH FROM THIS POINT """
-
 def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEARCH_FORWARD):
     urls_accessed = []
     titles_accessed = []
@@ -337,7 +348,7 @@ def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEAR
     # with open('lots_of_meta_data_AGAIN.json', 'w', encoding='utf-8') as f:
     #     json.dump(node_content, f, indent=4, sort_keys=True)
 
-    df_edges, edge_list, node_list = package_information(node_content)
+    df_edges, edge_list, node_list, nodes_relation = package_information(node_content)
     _print('\n\nFinished packaging edge and node lists')
 
     # TODO: Depth to JSON
@@ -358,16 +369,120 @@ def MASTER_EXECUTION(SEED_URL, depth=0, MAX_DEPTH=MAX_DEPTH, SEARCH_FORWARD=SEAR
     # _ = nx.draw_networkx_edge_labels(G, pos=nx_layout)
     # plt.show()
 
-    return edge_list, node_list, G
+    return edge_list, node_list, G, nodes_relation
 
-# # FUNCTION: Cluster Graph
-# cluster_dict = some_func(node_list)
-#
-# cluster_nodes = list(cluster_dict.keys())
-# cluster_edges = []
-# for n in cluster_nodes:
-#     cluster_edges.append(n)
-#
-# edge_list, node_list, G = MASTER_EXECUTION(SEED_URL)
+def get_cluster_data(node_list, G, nodes_relation):
+    # FUNCTION: Cluster Graph
+    cluster_dict = cluster_with_kprotoype(node_list)
+    # for node in node_list:
+    #     url = node['data']['url']
+    #     node['data']['cluster_id'] = 'c_' + str(cluster_dict.get(url))
+
+    for i in range(len(G.nodes(data=True))):
+        name = 'n-' + str(i)
+        url = nodes_relation.get(name)
+        cluster = cluster_dict.get(url)
+        node = G.nodes(data=True)[name]
+        node['cluster_id'] = ('c_' + str(cluster))
+
+    # for node in G.nodes(data=True):
+    #     url = nodes_relation.get(node[0])
+    #     cluster = cluster_dict.get(url)
+    #     node['cluster_id'] = ('c_' + str(cluster))
+
+    cluster_count = {}
+    for cluster in list(cluster_dict.values()):
+        cluster_text = 'c_' + str(cluster)
+        cluster_count[cluster_text] = []
+        for (p, d) in G.nodes(data=True):
+            if d['cluster_id'] == cluster_text:
+                cluster_count[cluster_text].append(p)
+
+    averages = {}
+    for cluster_name, node_inside in cluster_count.items():
+        averages[cluster_name] = []
+        for node in node_list:
+            node_name = node['id']
+            if node_name in node_inside:
+                averages[cluster_name].append(node['data']['content_sentiment'])
+
+    final_averages = {}
+    for cluster_name, constituents in averages.items():
+        neg = 0
+        neu = 0
+        pos = 0
+        comp = 0
+        num_const = len(constituents)
+        for sent in constituents:
+            neg += sent['neg']
+            neu += sent['neu']
+            pos += sent['pos']
+            comp += sent['compound']
+        neg /= num_const
+        neu /= num_const
+        pos /= num_const
+        comp /= num_const
+        final_averages[cluster_name] = {'neg_avg': neg,
+                                       'neu_avg': neu,
+                                       'pos_avg': pos,
+                                       'comp_avg': comp}
+
+    cluster_final = []
+    for name, avg_sentiment in final_averages.items():
+        per_cluster = {}
+        per_cluster['id'] = name
+        per_cluster['type'] = 'cluster'
+        avg_sentiment['num_nodes'] = len(cluster_count[name])
+        per_cluster['data'] = avg_sentiment
+        cluster_final.append(per_cluster)
+
+    return cluster_final
+
+_ = """
+####################################################################################################
+############################################# EXECUTION ############################################
+#################################################################################################"""
+
+""" DON'T TOUCH FROM THIS POINT """
+
+URLS = ["https://www.nbcnews.com/news/us-news/proposed-florida-bridge-poses-threat-historic-black-community-rcna16663",
+        "https://www.cnn.com/2022/02/20/americas/canada-trucker-protest-covid-sunday/index.html",
+        "https://www.washingtonpost.com/health/2022/02/17/national-guard-covid/"]
+
+edge_list, node_list, G_articles, nodes_relation = MASTER_EXECUTION(SEED_URL)
+for thing in edge_list:
+    thing['type'] = 'custom'
+
+cluster_data = get_cluster_data(node_list, G_articles, nodes_relation)
+
+edges = []
+for info in cluster_data:
+    edges.append(('Perspective', info['id']))
+G_cluster = nx.from_edgelist(edges)
+nx.draw(G_cluster)
+
+# coordinates, 
+#  = get_coordinates(G_cluster)
+
+for node in node_list:
+    id = node['id']
+    node['position'] = coordinates.get(id)
+
+# import json
+# with open('Data/edge_list.json', 'w', encoding='utf-8') as f:
+#     json.dump(edge_list, f, indent=4, sort_keys=True)
+# with open('Data/node_list_XY_FIXED.json', 'w', encoding='utf-8') as f:
+#     json.dump(node_list, f, indent=4, sort_keys=True)
+# nx.draw(G)
+
+# TODO:
+# [IP] REMOVE DOUBLE EDGES
+# DONE MODULARIZE CLUSTER DATA
+# GET TIMEOUT WORKING
+
+
+# STALE
+# > NUMBER OF DEGREES
+# > CONNECTED COMPONENTS
 
 # EOF

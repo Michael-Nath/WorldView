@@ -3,7 +3,7 @@
 # @Email:  shounak@stanford.edu, mnath@stanford.edu
 # @Filename: local_nlp.py
 # @Last modified by:   shounak
-# @Last modified time: 2022-02-20T04:46:51-08:00
+# @Last modified time: 2022-02-20T10:55:45-08:00
 
 
 # def _set_cwd():
@@ -118,7 +118,7 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
     content_summary = summarize_content(_content)
     headline_sentiment = get_sentiment(_headline)
     all_clean_words = get_clean_words(_content, uniq = False)
-    kw_freq = kw_frequency(all_clean_words)
+    # kw_freq = kw_frequency(all_clean_words)
     top_words = get_top_words(_content)
     top_phrases = get_top_phrases(all_clean_words)
     # uniq_clean_words = list(set(all_clean_words))
@@ -128,7 +128,7 @@ def _ANALYZE_META_DATA(URL_META_DATA: dict) -> dict:
                    'content_summary': content_summary,
                    'headline_sentiment': headline_sentiment,
                    # 'clean_words': all_clean_words,
-                   'keyword_frequency': kw_freq,
+                   # 'keyword_frequency': kw_freq,
                    'top_words': top_words,
                    'top_phrases': top_phrases}
                    # 'unique_words': uniq_clean_words}
